@@ -141,18 +141,60 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Contact */}
-      <section id="contact" className="section bg-zinc-50/60 dark:bg-zinc-950/40">
-        <div className="container">
-          <h2 className="text-2xl sm:text-3xl font-bold">联系与报价 <span className="text-zinc-500">Contact</span></h2>
-          <p className="mt-3 text-zinc-600 dark:text-zinc-300 max-w-2xl">交付：WAV/MP3、Stems、可选工程文件 · 版权模式：独家/非独家/买断 · 修改轮次：2–3 次（大改另计）。</p>
-          <div className="mt-6 flex flex-wrap gap-3 text-sm">
-            <a className="px-4 py-2 rounded-2xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-900" href="mailto:hello@ann1wfoev.com">发邮件</a>
-            <a className="px-4 py-2 rounded-2xl bg-zinc-100 dark:bg-zinc-800" href="#">Instagram</a>
-            <a className="px-4 py-2 rounded-2xl hover:opacity-80" href="#">Link-in-bio</a>
-          </div>
-        </div>
-      </section>
+   {/* Contact */}
+<section id="contact" className="section bg-zinc-50/60 dark:bg-zinc-950/40">
+  <div className="container">
+    <h2 className="text-2xl sm:text-3xl font-bold">
+      联系与报价 <span className="text-zinc-500">Contact</span>
+    </h2>
+    <p className="mt-3 text-zinc-600 dark:text-zinc-300 max-w-2xl">
+      交付：WAV/MP3、Stems、可选工程文件 · 版权模式：独家/非独家/买断 · 修改轮次：2–3 次（大改另计）。
+    </p>
+
+    <div className="mt-6 flex flex-wrap gap-3 text-sm">
+      {/* 发邮件 */}
+      <a
+        className="px-4 py-2 rounded-2xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+        href="mailto:lailuxu503@gmail.com"
+      >
+        发邮件
+      </a>
+
+      {/* Instagram */}
+      <a
+        className="px-4 py-2 rounded-2xl bg-zinc-100 dark:bg-zinc-800"
+        href="https://instagram.com/你的账号"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Instagram
+      </a>
+
+      {/* WeChat：点击复制微信号 */}
+      <button
+        className="px-4 py-2 rounded-2xl bg-zinc-100 dark:bg-zinc-800"
+        onClick={() => {
+          const id = 'NeoAnnx1wfoev';
+          navigator.clipboard?.writeText(id);
+          alert('已复制微信号：' + id);
+        }}
+      >
+        WeChat
+      </button>
+
+      {/* Link-in-bio */}
+      <a
+        className="px-4 py-2 rounded-2xl hover:opacity-80"
+        href="https://你的linkinbio地址"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Link-in-bio
+      </a>
+    </div>
+  </div>
+</section>
+
 
       <footer className="py-10 text-center text-sm text-zinc-500">
         © {new Date().getFullYear()} Ann1wfoev / NEoANNx. One Way Forever.
