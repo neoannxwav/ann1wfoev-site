@@ -4,7 +4,7 @@ import { ArrowRight, PlayCircle, Music4, Palette, PenTool, Headphones, Mail, Lin
 import "./globals.css";
 
 const services = [
-  { icon: <Music4 className="w-6 h-6" />,  title: "定制伴奏 / Custom Beats", desc: "Jerk / Y2K / Emo / Alt-Pop：风格细分、编曲到母带的一体化交付", bullets: ["商用授权","专属音色设计","交付 Stems/Project"]},
+  { icon: <Music4 className="w-6 h-6" />,  title: "定制伴奏 / Custom Beats", desc: "UDG / Y2K / Emo / Alt-Pop：风格细分、编曲到母带的一体化交付", bullets: ["商用授权","专属音色设计","交付 Stems/Project"]},
   { icon: <Headphones className="w-6 h-6" />, title: "人声制作 / Vocal Production", desc: "录音指导、自动/手动调音、混音与母带", bullets: ["参考审美对齐","快速迭代","Demo→Master"]},
   { icon: <PenTool className="w-6 h-6" />, title: "填词与概念 / Writing & Concept", desc: "Hook 导向、品牌化叙事、跨中英创作", bullets: ["词曲共创","企划/视觉走向","发行策略建议"]},
   { icon: <Palette className="w-6 h-6" />, title: "艺人品牌 / Artist Branding", desc: "标识/封面/落地页，统一你在平台上的视觉和声音", bullets: ["品牌核心语","电子媒体包(EPK)","站点/投放素材"]},
@@ -41,7 +41,7 @@ export default function Page() {
                 <span className="block text-zinc-500 dark:text-zinc-400 text-xl sm:text-2xl mt-3">One Way Forever · Road to Never</span>
               </h1>
               <p className="mt-6 text-base sm:text-lg text-zinc-600 dark:text-zinc-300">
-                专注 Jerk / Y2K / Emo / Alt-Pop 的<strong>伴奏定制、录混母带、叙事概念</strong>与<strong>艺人品牌</strong>。让你的声音具备辨识度与商业落地性。
+                专注 UDG / Y2K / Emo / Alt-Pop 的<strong>伴奏定制、录混母带、叙事概念</strong>与<strong>艺人品牌</strong>。让你的声音具备辨识度与商业落地性。
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button href="#services" className="rounded-2xl"><ArrowRight className="w-4 h-4 mr-1"/>查看服务</Button>
@@ -116,8 +116,8 @@ export default function Page() {
               作为 Ann1wfoev（艺人）与 NEoANNx（制作人），我将“自由”“存在”“Road to Never”的哲学母题融入音乐，追求<strong>可识别的 Hook</strong>与<strong>干净的层次</strong>。
             </p>
             <ul className="mt-6 space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
-              <li>• 擅长：Jerk / Y2K / Emo / Alt-Pop / Indie-R&B</li>
-              <li>• 常用：FL Studio / Studio One · FabFilter / Ozone / Waves</li>
+              <li>• 擅长：UDG / Y2K / Emo / Alt-Pop / Indie-R&B</li>
+              <li>• 常用：FL Studio / Studio One</li>
               <li>• 流程：需求访谈 → Demo 对齐 → 制作与迭代 → 交付与授权</li>
             </ul>
           </div>
