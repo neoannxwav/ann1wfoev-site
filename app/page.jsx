@@ -7,7 +7,8 @@ const services = [
   { icon: <Music4 className="w-6 h-6" />,  title: "定制伴奏 / Custom Beats", desc: "UDG / Y2K / Emo / Alt-Pop：风格细分、编曲到母带的一体化交付", bullets: ["商用授权","专属音色设计","交付 Stems/Project"]},
   { icon: <Headphones className="w-6 h-6" />, title: "人声制作 / Vocal Production", desc: "录音指导、自动/手动调音、混音与母带", bullets: ["参考审美对齐","快速迭代","Demo→Master"]},
   { icon: <PenTool className="w-6 h-6" />, title: "填词与概念 / Writing & Concept", desc: "Hook 导向、品牌化叙事、跨中英创作", bullets: ["词曲共创","企划/视觉走向","发行策略建议"]},
-  { icon: <Palette className="w-6 h-6" />, title: "艺人品牌 / Artist Branding", desc: "标识/封面/落地页，统一你在平台上的视觉和声音", bullets: ["品牌核心语","电子媒体包(EPK)","站点/投放素材"]},
+  {icon: <Palette className="w-6 h-6" />,title: "艺人品牌 / Artist Branding",desc: "打造独特的艺术声音，从视觉到声音的完整统一，塑造你的专属艺术产品。",bullets: ["独家 音色包/鼓包/MIDI Loop Kit", "个人品牌构建", "定制化投放与宣传素材"]}
+},
 ];
 const works = [
   { cover: "/falling.jpg", title: "Single · falling heart", link: "#" },
