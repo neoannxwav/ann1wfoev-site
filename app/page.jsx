@@ -113,7 +113,7 @@ export default function Page() {
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold">关于 Ann1wfoev / NEoANNx <span className="text-zinc-500">About</span></h2>
             <p className="mt-4 text-zinc-600 dark:text-zinc-300 leading-relaxed">
-              作为 Ann1wfoev（艺人）与 NEoANNx（制作人），我将“自由”“存在”“Road to Never”的哲学母题融入音乐，追求<strong>可识别的 Hook</strong>与<strong>干净的层次</strong>。
+              作为 Ann1wfoev（艺人）与 NEoANNx（制作人），我将“Road to Never”的哲学母题融入音乐，追求<strong>听不到的声音</strong>与<strong>干净的层次</strong>。
             </p>
             <ul className="mt-6 space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
               <li>• 擅长：UDG / Y2K / Emo / Alt-Pop / Indie-R&B</li>
@@ -125,7 +125,7 @@ export default function Page() {
             <div className="card">
               <div className="text-base font-semibold mb-2">品牌关键词</div>
               <div className="flex flex-wrap gap-2 text-sm">
-                {["One Way Forever","Road to Never","微光→耀","存在主义","Hook 识别度","快速交付"].map(k=>(
+                {["One Way Forever","Road to Never","存在主义","Hook 识别度","快速交付"].map(k=>(
                   <Badge key={k}>{k}</Badge>
                 ))}
               </div>
