@@ -4,12 +4,32 @@ import { ArrowRight, PlayCircle, Music4, Palette, PenTool, Headphones, Mail, Lin
 import "./globals.css";
 
 const services = [
-  { icon: <Music4 className="w-6 h-6" />,  title: "定制伴奏 / Custom Beats", desc: "UDG / Y2K / Emo / Alt-Pop：风格细分、编曲到母带的一体化交付", bullets: ["商用授权","专属音色设计","交付 Stems/Project"]},
-  { icon: <Headphones className="w-6 h-6" />, title: "人声制作 / Vocal Production", desc: "录音指导、自动/手动调音、混音与母带", bullets: ["参考审美对齐","快速迭代","Demo→Master"]},
-  { icon: <PenTool className="w-6 h-6" />, title: "填词与概念 / Writing & Concept", desc: "Hook 导向、品牌化叙事、跨中英创作", bullets: ["词曲共创","企划/视觉走向","发行策略建议"]},
-  {icon: <Palette className="w-6 h-6" />,title: "艺人品牌 / Artist Branding",desc: "打造独特的艺术声音，从视觉到声音的完整统一，塑造你的专属艺术产品。",bullets: ["独家 音色包/鼓包/MIDI Loop Kit", "个人品牌构建", "定制化投放与宣传素材"]}
-},
+  {
+    icon: <Music4 className="w-6 h-6" />,
+    title: "定制伴奏 / Custom Beats",
+    desc: "UDG / Y2K / Emo / Alt-Pop：风格细分、编曲到母带的一体化交付",
+    bullets: ["商用授权", "专属音色设计", "交付 stems/Project"],
+  },
+  {
+    icon: <Headphones className="w-6 h-6" />,
+    title: "人声制作 / Vocal Production",
+    desc: "录音指导、自动/手动调音、混音与母带",
+    bullets: ["参考审美对齐", "快速迭代", "Demo→Master"],
+  },
+  {
+    icon: <PenTool className="w-6 h-6" />,
+    title: "填词与概念 / Writing & Concept",
+    desc: "Hook 导向，品牌化叙事，跨中英创作",
+    bullets: ["词曲共创", "企划/视觉走向", "发行策略建议"],
+  },
+  {
+    icon: <Palette className="w-6 h-6" />,
+    title: "艺人品牌 / Artist Branding",
+    desc: "打造独特的艺术声音，从视觉到声音的完整统一，塑造你的专属艺术产品。",
+    bullets: ["独家 音色包/鼓包/MIDI Loop Kit", "个人品牌构建", "定制化投放与宣传素材"],
+  },
 ];
+
 const works = [
   { cover: "/falling.jpg", title: "Single · falling heart", link: "#" },
   { cover: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1200&auto=format&fit=crop", title: "Beat Pack · Road to Never", link: "#" },
