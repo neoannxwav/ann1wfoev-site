@@ -15,9 +15,7 @@ function AccountCard({ title, name, desc, link }) {
         </div>
       </div>
 
-      <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
-        {desc}
-      </p>
+      <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">{desc}</p>
 
       <div className="mt-6 flex items-center gap-3">
         <a
@@ -31,10 +29,6 @@ function AccountCard({ title, name, desc, link }) {
           前往网易云
           <ExternalLink size={16} />
         </a>
-
-        <span className="text-xs text-zinc-400 dark:text-zinc-500">
-          外部链接 · NetEase Cloud Music
-        </span>
       </div>
     </div>
   );
@@ -48,23 +42,24 @@ export default function NeteasePage() {
         <div className="mb-10 md:mb-14">
           <h1 className="text-2xl md:text-3xl font-bold">网易云账号</h1>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            两个账号用于不同的创作线：个人作品与制作人项目，点击进入对应主页。
+            不同账号承载不同的音乐使命：创作表达与制作协作。
           </p>
         </div>
 
-        {/* 卡片列表：个人创作账号放前面 */}
+        {/* ✅ 先放“个人创作账号 · Ann1wfoev” */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           <AccountCard
             title="个人创作账号"
             name="Ann1wfoev"
-            desc="以个人表达为核心，聚焦独立音乐与纯粹乐感的呈现。"
+            desc="聚焦独立音乐与自我表达，展现更纯粹的声音与个人风格。"
             link="https://163cn.tv/Kg6Av5P"
           />
 
+          {/* 然后是“制作人账号 · NEoANNx” */}
           <AccountCard
             title="制作人账号"
             name="NEoANNx"
-            desc="服务艺人与项目制作，风格深度与声音品牌统一建设。"
+            desc="播放量已破 8000万，收录海量伴奏与合作作品。"
             link="https://163cn.tv/Kg6Zyn0"
           />
         </div>
