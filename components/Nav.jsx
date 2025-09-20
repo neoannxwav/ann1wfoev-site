@@ -18,6 +18,13 @@ export default function Nav(){
           <nav className="hidden md:flex items-center gap-6 text-sm">
             {items.map(i => <a key={i.name} href={i.href} className="hover:opacity-80">{i.name}</a>)}
           </nav>
+          <a
+  href="/netease"
+  className="ml-4 px-4 py-2 rounded-2xl font-medium text-white bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 transition"
+>
+  网易云
+</a>
+
           <a href="#contact" className="btn btn-primary rounded-2xl">洽谈项目</a>
         </div>
       </div>
