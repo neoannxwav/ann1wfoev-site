@@ -4,6 +4,7 @@ export default function Nav(){
     { name: "服务 Services", href: "#services" },
     { name: "作品 Works", href: "#works" },
     { name: "关于 About", href: "#about" },
+    { name: "网易云 Netease", href: "/netease" }, 
     { name: "联系 Contact", href: "#contact" },
   ];
   return (
