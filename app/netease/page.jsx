@@ -38,12 +38,12 @@ export default function NeteasePage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-950 dark:to-zinc-900 text-zinc-900 dark:text-zinc-100">
       <div className="container mx-auto px-4 py-14 md:py-20">
-        {/* 顶部标题（注意：不再显示你不想要的那句话） */}
+        {/* 顶部标题 */}
         <div className="mb-10 md:mb-14">
           <h1 className="text-2xl md:text-3xl font-bold">网易云账号</h1>
         </div>
 
-        {/* 先放“个人创作账号 · Ann1wfoev” */}
+        {/* 两个卡片 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           <AccountCard
             title="个人创作账号"
@@ -51,8 +51,6 @@ export default function NeteasePage() {
             desc="聚焦独立音乐与自我表达，展现更纯粹的声音与个人风格。"
             link="https://163cn.tv/Kg6Av5P"
           />
-
-        {/* 再放“制作人账号 · NEoANNx” */}
           <AccountCard
             title="制作人账号"
             name="NEoANNx"
