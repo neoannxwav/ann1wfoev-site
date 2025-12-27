@@ -12,8 +12,8 @@ export default function NeteasePage() {
     },
     {
       role: "制作人账号",
-      name: "NEoANNx",
-      desc: "播放量已破 8000万，收录海量伴奏与合作作品。",
+      name: "neo1Annx",
+      desc: "播放量已破 1亿，收录海量伴奏与合作作品。",
       link: "https://163cn.tv/Kg6Zyn0",
     },
   ];
