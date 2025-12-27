@@ -62,7 +62,7 @@ export default function Page() {
                 <span className="block text-zinc-500 dark:text-zinc-400 text-xl sm:text-2xl mt-3">One Way Forever · Road to Never</span>
               </h1>
               <p className="mt-6 text-base sm:text-lg text-zinc-600 dark:text-zinc-300">
-                专注 UDG / Y2K / Emo / Alt-Pop 的<strong>伴奏定制、录混母带、叙事概念</strong>与<strong>艺人品牌</strong>。让你的声音具备辨识度与商业落地性。
+                专注 UG / Y2K / Emo / Alt-Pop 的<strong>伴奏定制、录混母带、叙事概念</strong>与<strong>艺人品牌</strong>。让你的声音具备辨识度与商业落地性。
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button href="#services" className="rounded-2xl"><ArrowRight className="w-4 h-4 mr-1"/>查看服务</Button>
@@ -137,7 +137,7 @@ export default function Page() {
               作为 Ann1wfoev（艺人）与 NEoANNx（制作人），我将“Road to Never”的哲学母题融入音乐，追求<strong>听不到的声音</strong>与<strong>干净的层次</strong>。
             </p>
             <ul className="mt-6 space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
-              <li>• 擅长：UDG / Y2K / Emo / Alt-Pop / Indie-R&B</li>
+              <li>• 擅长：UG / Y2K / Emo / Alt-Pop / Indie-R&B</li>
               <li>• 常用：FL Studio / Studio One</li>
               <li>• 流程：需求访谈 → Demo 对齐 → 制作与迭代 → 交付与授权</li>
             </ul>
