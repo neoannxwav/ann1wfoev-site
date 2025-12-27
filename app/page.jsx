@@ -7,7 +7,7 @@ const services = [
   {
     icon: <Music4 className="w-6 h-6" />,
     title: "定制伴奏 / Custom Beats",
-    desc: "UDG / Y2K / Emo / Alt-Pop：风格细分、编曲到母带的一体化交付",
+    desc: "UG / Y2K / Emo / Alt-Pop：风格细分、编曲到母带的一体化交付",
     bullets: ["商用授权", "专属音色设计", "交付 stems/Project"],
   },
   {
