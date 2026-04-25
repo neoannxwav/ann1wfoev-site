@@ -30,14 +30,16 @@ export default function Home() {
 function Background() {
   return (
     <>
-      <img
-        src="/hero.jpg"
-        alt=""
-        className="absolute inset-y-0 right-0 z-0 h-full w-full md:w-[58vw] object-cover object-[55%_center] opacity-70 md:opacity-90"
-      />
+      <div className="absolute inset-y-0 right-0 z-0 w-full md:w-[52vw] flex items-center justify-end overflow-hidden">
+        <img
+          src="/hero.jpg"
+          alt=""
+          className="h-[82vh] w-auto object-contain opacity-55 md:opacity-68"
+        />
+      </div>
 
-      <div className="absolute inset-0 z-10 bg-gradient-to-r from-black via-black/70 to-black/10" />
-      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-r from-black via-black/78 to-black/25" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/75 via-transparent to-black/45" />
     </>
   );
 }
