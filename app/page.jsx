@@ -44,12 +44,12 @@ function Background() {
 
 function Hero() {
   return (
-    <section className="min-h-[78vh] flex flex-col justify-center max-w-2xl">
-      <h1 className="text-[3.4rem] md:text-[6.8rem] leading-none font-light tracking-[0.12em] mb-6">
+    <section className="min-h-[78vh] flex flex-col justify-center max-w-xl">
+      <h1 className="text-[3rem] md:text-[5.6rem] leading-none font-light tracking-[0.12em] mb-6">
         ANN1WFOEV
       </h1>
 
-      <p className="text-sm md:text-lg tracking-[0.35em] text-white/70 mb-7">
+      <p className="text-sm md:text-base tracking-[0.35em] text-white/70 mb-7">
         ARTIST / PRODUCER
       </p>
 
