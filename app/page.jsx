@@ -46,39 +46,77 @@ function Background() {
 
 function Hero() {
   return (
-  <section className="min-h-[66vh] md:min-h-[78vh] flex flex-col justify-center max-w-xl pt-6 md:pt-0">
-  <h1 className="text-[10vw] md:text-[5.6rem] leading-none font-light tracking-[0.04em] md:tracking-[0.12em] mb-5">
-    ANN1WFOEV
-  </h1>
+    <>
+      {/* 手机端 */}
+      <section className="md:hidden min-h-[68vh] flex flex-col justify-center pt-8">
+        <h1 className="text-[2.25rem] leading-none font-light tracking-[0.04em] mb-6">
+          ANN1WFOEV
+        </h1>
 
-  <p className="text-[0.68rem] md:text-base tracking-[0.28em] md:tracking-[0.35em] text-white/70 mb-6">
-    ARTIST / PRODUCER
-  </p>
+        <p className="text-[0.72rem] tracking-[0.26em] text-white/70 mb-6">
+          ARTIST / PRODUCER
+        </p>
 
-  <div className="w-12 h-px bg-white/60 mb-6" />
+        <div className="w-12 h-px bg-white/60 mb-6" />
 
-  <p className="text-sm md:text-base text-white/55 tracking-[0.08em] mb-12">
-    one way forever
-  </p>
+        <p className="text-sm text-white/55 tracking-[0.08em] mb-12">
+          one way forever
+        </p>
 
-  <div className="grid grid-cols-1 gap-4 text-xs md:text-sm tracking-[0.18em] text-white/80 max-w-xs">
-    <a href="#" className="flex justify-between hover:text-white transition">
-      INSTAGRAM <span>↗</span>
-    </a>
-    <a href="#" className="flex justify-between hover:text-white transition">
-      SPOTIFY <span>↗</span>
-    </a>
-    <a href="#" className="flex justify-between hover:text-white transition">
-      YOUTUBE <span>↗</span>
-    </a>
-    <a href="#" className="flex justify-between hover:text-white transition">
-      SOUNDCLOUD <span>↗</span>
-    </a>
-    <a href="#" className="flex justify-between hover:text-white transition">
-      CONTACT <span>↗</span>
-    </a>
-  </div>
-</section>
+        <div className="space-y-5 text-xs tracking-[0.2em] text-white/80">
+          <a href="#" className="flex justify-between">
+            INSTAGRAM <span>↗</span>
+          </a>
+          <a href="#" className="flex justify-between">
+            SPOTIFY <span>↗</span>
+          </a>
+          <a href="#" className="flex justify-between">
+            YOUTUBE <span>↗</span>
+          </a>
+          <a href="#" className="flex justify-between">
+            SOUNDCLOUD <span>↗</span>
+          </a>
+          <a href="#" className="flex justify-between">
+            CONTACT <span>↗</span>
+          </a>
+        </div>
+      </section>
+
+      {/* 电脑端 */}
+      <section className="hidden md:flex min-h-[78vh] flex-col justify-center max-w-xl">
+        <h1 className="text-[5.6rem] leading-none font-light tracking-[0.12em] mb-6">
+          ANN1WFOEV
+        </h1>
+
+        <p className="text-base tracking-[0.35em] text-white/70 mb-7">
+          ARTIST / PRODUCER
+        </p>
+
+        <div className="w-12 h-px bg-white/60 mb-7" />
+
+        <p className="text-base text-white/55 tracking-[0.08em] mb-16">
+          one way forever
+        </p>
+
+        <div className="grid grid-cols-1 gap-4 text-sm tracking-[0.18em] text-white/80 max-w-xs">
+          <a href="#" className="flex justify-between hover:text-white transition">
+            INSTAGRAM <span>↗</span>
+          </a>
+          <a href="#" className="flex justify-between hover:text-white transition">
+            SPOTIFY <span>↗</span>
+          </a>
+          <a href="#" className="flex justify-between hover:text-white transition">
+            YOUTUBE <span>↗</span>
+          </a>
+          <a href="#" className="flex justify-between hover:text-white transition">
+            SOUNDCLOUD <span>↗</span>
+          </a>
+          <a href="#" className="flex justify-between hover:text-white transition">
+            CONTACT <span>↗</span>
+          </a>
+        </div>
+      </section>
+    </>
   );
 }
 
