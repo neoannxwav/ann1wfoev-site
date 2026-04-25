@@ -153,7 +153,7 @@ function OneW4V() {
         <p>Vocal Production</p>
         <p>Mixing</p>
         <p>Sound Design</p>
-      </div>
+      </div> 
     </section>
   );
 }
