@@ -1,16 +1,49 @@
 "use client";
-import { useState } from "react";
+
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import Nav from "../components/Nav";
+
+const contactValue = "NeoAnnx1wfoev";
 
 export default function Home() {
   const [current, setCurrent] = useState(1);
+  const [contactOpen, setContactOpen] = useState(false);
+  const contactRef = useRef(null);
+
+  useEffect(() => {
+    function handleOutsideClick(event) {
+      if (contactRef.current && !contactRef.current.contains(event.target)) {
+        setContactOpen(false);
+      }
+    }
+
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        setContactOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  function handleToggleContact(event) {
+    event.preventDefault();
+    setContactOpen((open) => !open);
+  }
 
   return (
-    <main className="min-h-screen bg-black text-white overflow-hidden">
+    <main className="min-h-screen overflow-hidden bg-black text-white">
       <div className="relative min-h-screen px-6 py-7 md:px-14 md:py-10">
         <Background />
 
-        <header className="relative z-20 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <header className="relative z-20 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="text-xs tracking-[0.32em] text-white/80">
             ANN1WFOEV.COM
           </div>
@@ -18,7 +51,13 @@ export default function Home() {
         </header>
 
         <div className="relative z-20">
-          {current === 1 && <Hero />}
+          {current === 1 && (
+            <Hero
+              contactOpen={contactOpen}
+              contactRef={contactRef}
+              onToggleContact={handleToggleContact}
+            />
+          )}
           {current === 2 && <NextProject />}
           {current === 3 && <OneW4V />}
         </div>
@@ -33,13 +72,13 @@ function Background() {
       <img
         src="/hero.jpg"
         alt=""
-        className="hidden md:block absolute top-1/2 left-[58%] -translate-y-1/2 z-0 h-[92vh] w-auto object-contain opacity-78"
+        className="absolute left-[58%] top-1/2 z-0 hidden h-[92vh] w-auto -translate-y-1/2 object-contain opacity-78 md:block"
       />
 
       <img
         src="/hero.jpg"
         alt=""
-        className="md:hidden absolute top-[48%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-[82vw] h-auto object-contain opacity-45"
+        className="absolute left-1/2 top-[48%] z-0 h-auto w-[82vw] -translate-x-1/2 -translate-y-1/2 object-contain opacity-45 md:hidden"
       />
 
       <div className="absolute inset-0 z-10 bg-gradient-to-r from-black via-black/72 to-black/20" />
@@ -47,111 +86,147 @@ function Background() {
     </>
   );
 }
-function Hero() {
+
+function Hero(props) {
   return (
     <>
-      {/* 手机端 */}
-      <section className="md:hidden min-h-[68vh] flex flex-col justify-center pt-8">
-        <h1 className="text-[2.25rem] leading-none font-light tracking-[0.04em] mb-6">
-          ANN1WFOEV
-        </h1>
-
-        <p className="text-[0.9rem] font-semibold tracking-[0.18em] text-white/82 mb-4">
-          neo1Annx
-        </p>
-
-        <p className="text-[0.72rem] tracking-[0.26em] text-white/70 mb-6">
-          ARTIST / PRODUCER
-        </p>
-
-        <div className="w-12 h-px bg-white/60 mb-6" />
-
-        <p className="text-sm text-white/55 tracking-[0.08em] mb-12">
-          one way forever
-        </p>
-
-        <div className="space-y-5 text-xs tracking-[0.2em] text-white/80">
-          <a href="#" className="flex justify-between">
-            INSTAGRAM <span>↗</span>
-          </a>
-          <a href="#" className="flex justify-between">
-            网易云 <span>↗</span>
-          </a>
-          <a href="#" className="flex justify-between">
-            YOUTUBE <span>↗</span>
-          </a>
-          <a href="#" className="flex justify-between">
-            SOUNDCLOUD <span>↗</span>
-          </a>
-          <a href="#" className="flex justify-between">
-            CONTACT <span>↗</span>
-          </a>
-        </div>
+      <section className="flex min-h-[68vh] flex-col justify-center pt-8 md:hidden">
+        <HeroCopy mobile />
+        <SocialLinks mobile {...props} />
       </section>
 
-      {/* 电脑端 */}
-      <section className="hidden md:flex min-h-[78vh] flex-col justify-center max-w-xl">
-        <h1 className="text-[5.6rem] leading-none font-light tracking-[0.12em] mb-6">
-          ANN1WFOEV
-        </h1>
-
-        <p className="text-[1.15rem] font-semibold tracking-[0.22em] text-white/82 mb-4">
-          neo1Annx
-        </p>
-
-        <p className="text-base tracking-[0.35em] text-white/70 mb-7">
-          ARTIST / PRODUCER
-        </p>
-
-        <div className="w-12 h-px bg-white/60 mb-7" />
-
-        <p className="text-base text-white/55 tracking-[0.08em] mb-16">
-          one way forever
-        </p>
-
-        <div className="grid grid-cols-1 gap-4 text-sm tracking-[0.18em] text-white/80 max-w-xs">
-          <a href="#" className="flex justify-between hover:text-white transition">
-            INSTAGRAM <span>↗</span>
-          </a>
-          <a href="#" className="flex justify-between hover:text-white transition">
-            网易云 <span>↗</span>
-          </a>
-          <a href="#" className="flex justify-between hover:text-white transition">
-            YOUTUBE <span>↗</span>
-          </a>
-          <a href="#" className="flex justify-between hover:text-white transition">
-            SOUNDCLOUD <span>↗</span>
-          </a>
-          <a href="#" className="flex justify-between hover:text-white transition">
-            CONTACT <span>↗</span>
-          </a>
-        </div>
+      <section className="hidden min-h-[78vh] max-w-xl flex-col justify-center md:flex">
+        <HeroCopy />
+        <SocialLinks {...props} />
       </section>
     </>
   );
 }
 
+function HeroCopy({ mobile = false }) {
+  return (
+    <>
+      <h1
+        className={
+          mobile
+            ? "mb-6 text-[2.25rem] font-light leading-none tracking-[0.04em]"
+            : "mb-6 text-[5.6rem] font-light leading-none tracking-[0.12em]"
+        }
+      >
+        ANN1WFOEV
+      </h1>
+
+      <p
+        className={
+          mobile
+            ? "mb-4 text-[0.9rem] font-semibold tracking-[0.18em] text-white/82"
+            : "mb-4 text-[1.15rem] font-semibold tracking-[0.22em] text-white/82"
+        }
+      >
+        neo1Annx
+      </p>
+
+      <p
+        className={
+          mobile
+            ? "mb-6 text-[0.72rem] tracking-[0.26em] text-white/70"
+            : "mb-7 text-base tracking-[0.35em] text-white/70"
+        }
+      >
+        ARTIST / PRODUCER
+      </p>
+
+      <div className={mobile ? "mb-6 h-px w-12 bg-white/60" : "mb-7 h-px w-12 bg-white/60"} />
+
+      <p
+        className={
+          mobile
+            ? "mb-12 text-sm tracking-[0.08em] text-white/55"
+            : "mb-16 text-base tracking-[0.08em] text-white/55"
+        }
+      >
+        one way forever
+      </p>
+    </>
+  );
+}
+
+function SocialLinks({ mobile = false, contactOpen, contactRef, onToggleContact }) {
+  const containerClass = mobile
+    ? "space-y-5 text-xs tracking-[0.2em] text-white/80"
+    : "grid max-w-xs grid-cols-1 gap-4 text-sm tracking-[0.18em] text-white/80";
+  const linkClass = mobile
+    ? "flex justify-between"
+    : "flex justify-between transition hover:text-white";
+  const popupClass = mobile
+    ? "mt-3 border border-white/14 bg-black/92 px-4 py-3"
+    : "absolute left-0 top-full mt-3 min-w-[18rem] border border-white/14 bg-black/92 px-4 py-3 backdrop-blur";
+
+  return (
+    <div className={containerClass}>
+      <a href="#" className={linkClass}>
+        INSTAGRAM <span>↗</span>
+      </a>
+
+      <Link href="/netease" className={linkClass}>
+        网易云 <span>↗</span>
+      </Link>
+
+      <Link href="/bilibili" className={linkClass}>
+        Bilibili <span>↗</span>
+      </Link>
+
+      <a href="#" className={linkClass}>
+        SOUNDCLOUD <span>↗</span>
+      </a>
+
+      <div ref={contactRef} className={mobile ? "relative" : "relative w-full"}>
+        <button
+          type="button"
+          onClick={onToggleContact}
+          className={`${linkClass} w-full bg-transparent text-left`}
+        >
+          CONTACT <span>{contactOpen ? "−" : "↗"}</span>
+        </button>
+
+        {contactOpen && (
+          <div className={popupClass}>
+            <p className="mb-2 text-[0.62rem] tracking-[0.2em] text-white/38">
+              CONTACT ID
+            </p>
+            <div className="border border-white/12 px-3 py-3">
+              <p className="text-[0.72rem] tracking-[0.18em] text-white/82">
+                v: {contactValue}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function NextProject() {
   return (
-    <section className="min-h-[78vh] flex flex-col justify-center max-w-2xl">
-      <p className="text-xs tracking-[0.35em] text-white/40 mb-5">02</p>
-      <h2 className="text-4xl md:text-6xl font-light tracking-[0.18em] mb-8">
+    <section className="min-h-[78vh] max-w-2xl flex-col justify-center md:flex">
+      <p className="mb-5 text-xs tracking-[0.35em] text-white/40">02</p>
+      <h2 className="mb-8 text-4xl font-light tracking-[0.18em] md:text-6xl">
         NEXT PROJECT
       </h2>
-      <p className="text-white/55 tracking-[0.2em]">COMING SOON</p>
+      <p className="tracking-[0.2em] text-white/55">COMING SOON</p>
     </section>
   );
 }
 
 function OneW4V() {
   return (
-    <section className="min-h-[78vh] flex flex-col justify-center max-w-2xl">
-      <p className="text-xs tracking-[0.35em] text-white/40 mb-5">03</p>
-      <h2 className="text-4xl md:text-6xl font-light tracking-[0.16em] mb-8">
+    <section className="min-h-[78vh] max-w-2xl flex-col justify-center md:flex">
+      <p className="mb-5 text-xs tracking-[0.35em] text-white/40">03</p>
+      <h2 className="mb-8 text-4xl font-light tracking-[0.16em] md:text-6xl">
         1W4V AUDIO
       </h2>
 
-      <p className="text-white/60 leading-8 mb-10 max-w-xl">
+      <p className="mb-10 max-w-xl leading-8 text-white/60">
         1W4V Audio is an evolving sound platform built around music production,
         sonic identity and artist-focused design.
       </p>
@@ -161,11 +236,7 @@ function OneW4V() {
         <p>Vocal Production</p>
         <p>Mixing</p>
         <p>Sound Design</p>
-      </div> 
+      </div>
     </section>
   );
 }
-
-
-
-

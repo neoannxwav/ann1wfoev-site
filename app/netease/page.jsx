@@ -1,52 +1,66 @@
-"use client";
+import Link from "next/link";
 
-import { Music4, ExternalLink } from "lucide-react";
+const accounts = [
+  {
+    role: "Artist profile",
+    name: "Ann1wfoev",
+    desc: "The personal stream for solo releases, fragments, and the more intimate side of the project.",
+    link: "https://163cn.tv/Kg6Av5P",
+  },
+  {
+    role: "Producer profile",
+    name: "neo1Annx",
+    desc: "A parallel archive focused on production work, collaborations, and a wider sonic identity.",
+    link: "https://163cn.tv/Kg6Zyn0",
+  },
+];
 
 export default function NeteasePage() {
-  const accounts = [
-    {
-      role: "个人创作账号",
-      name: "Ann1wfoev",
-      desc: "聚焦独立音乐与自我表达，展现更纯粹的声音与个人风格。",
-      link: "https://163cn.tv/Kg6Av5P",
-    },
-    {
-      role: "制作人账号",
-      name: "neo1Annx",
-      desc: "播放量已破 1亿，收录海量伴奏与合作作品。",
-      link: "https://163cn.tv/Kg6Zyn0",
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950 text-zinc-900 dark:text-zinc-100">
-      <div className="container mx-auto px-6 py-16">
-        <h1 className="text-4xl font-bold mb-12 flex items-center gap-3">
-          <Music4 className="w-8 h-8 text-red-500" />
-          网易云账号
-        </h1>
+    <main className="min-h-screen bg-black text-white">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8 md:px-14 md:py-10">
+        <header className="mb-16 flex items-center justify-between text-xs tracking-[0.32em] text-white/70">
+          <Link href="/">ANN1WFOEV.COM</Link>
+          <span>NETEASE</span>
+        </header>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {accounts.map((acc, i) => (
-            <div
-              key={i}
-              className="p-6 rounded-2xl shadow-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:shadow-xl transition"
-            >
-              <h2 className="text-xl font-semibold mb-2">{acc.role}</h2>
-              <h3 className="text-2xl font-bold mb-4">{acc.name}</h3>
-              <p className="text-zinc-600 dark:text-zinc-300 mb-6">{acc.desc}</p>
+        <section className="grid gap-16 md:grid-cols-[0.9fr_1.1fr] md:items-start">
+          <div className="max-w-md">
+            <p className="mb-5 text-xs tracking-[0.35em] text-white/35">01 / ENTRY</p>
+            <h1 className="mb-8 text-4xl font-light tracking-[0.16em] md:text-6xl">
+              网易云
+            </h1>
+            <p className="leading-8 text-white/58">
+              A quiet bridge between the main site and the listening space. Two
+              profiles, two energies, one same core.
+            </p>
+          </div>
+
+          <div className="grid gap-6">
+            {accounts.map((account) => (
               <a
-                href={acc.link}
+                key={account.name}
+                href={account.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 transition"
+                className="group border border-white/12 bg-white/[0.03] p-7 transition hover:border-white/28 hover:bg-white/[0.05]"
               >
-                前往网易云 <ExternalLink className="ml-2 w-4 h-4" />
+                <p className="mb-4 text-[0.68rem] tracking-[0.28em] text-white/40">
+                  {account.role}
+                </p>
+                <h2 className="mb-4 text-2xl font-light tracking-[0.12em] md:text-3xl">
+                  {account.name}
+                </h2>
+                <p className="max-w-lg leading-7 text-white/55">{account.desc}</p>
+                <div className="mt-8 flex items-center justify-between text-xs tracking-[0.28em] text-white/72">
+                  <span>OPEN PROFILE</span>
+                  <span className="transition group-hover:translate-x-1">↗</span>
+                </div>
               </a>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
