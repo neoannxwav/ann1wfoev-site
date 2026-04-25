@@ -6,20 +6,20 @@ export default function Nav({ current, setCurrent }) {
   ];
 
   return (
-    <div className="flex gap-10 text-sm tracking-widest">
+    <nav className="flex flex-wrap gap-5 md:gap-10 text-xs md:text-sm tracking-widest">
       {tabs.map((tab) => (
-        <div
+        <button
           key={tab.id}
           onClick={() => setCurrent(tab.id)}
-          className={`cursor-pointer ${
+          className={`pb-2 transition ${
             current === tab.id
-              ? "text-white border-b border-white pb-1"
-              : "text-gray-500"
+              ? "text-white border-b border-white"
+              : "text-gray-500 hover:text-white"
           }`}
         >
           {String(tab.id).padStart(2, "0")} {tab.name}
-        </div>
+        </button>
       ))}
-    </div>
+    </nav>
   );
 }
