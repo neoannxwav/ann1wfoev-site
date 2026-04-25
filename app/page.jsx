@@ -56,6 +56,10 @@ function Hero() {
           ANN1WFOEV
         </h1>
 
+        <p className="text-[0.9rem] font-semibold tracking-[0.18em] text-white/82 mb-4">
+          neo1Annx
+        </p>
+
         <p className="text-[0.72rem] tracking-[0.26em] text-white/70 mb-6">
           ARTIST / PRODUCER
         </p>
@@ -71,7 +75,7 @@ function Hero() {
             INSTAGRAM <span>↗</span>
           </a>
           <a href="#" className="flex justify-between">
-            SPOTIFY <span>↗</span>
+            网易云 <span>↗</span>
           </a>
           <a href="#" className="flex justify-between">
             YOUTUBE <span>↗</span>
@@ -91,6 +95,10 @@ function Hero() {
           ANN1WFOEV
         </h1>
 
+        <p className="text-[1.15rem] font-semibold tracking-[0.22em] text-white/82 mb-4">
+          neo1Annx
+        </p>
+
         <p className="text-base tracking-[0.35em] text-white/70 mb-7">
           ARTIST / PRODUCER
         </p>
@@ -106,7 +114,7 @@ function Hero() {
             INSTAGRAM <span>↗</span>
           </a>
           <a href="#" className="flex justify-between hover:text-white transition">
-            SPOTIFY <span>↗</span>
+            网易云 <span>↗</span>
           </a>
           <a href="#" className="flex justify-between hover:text-white transition">
             YOUTUBE <span>↗</span>
