@@ -2,19 +2,18 @@ import "./globals.css";
 
 export const metadata = {
   title: "Ann1wfoev / NEoANNx – One Way Forever",
-  description: "Custom Beats, Vocal Production, Artist Branding – Jerk / Y2K / Emo / Alt-Pop",
+  description: "Ann1wfoev official site",
 };
 
-export default function RootLayout({ children }) {
-  return (
-    <html lang="zh-CN">
-      <body className="bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-        {children}
-      </body>
-    </html>
-  );
-}
 export const viewport = {
   width: "device-width",
   initialScale: 1,
 };
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
