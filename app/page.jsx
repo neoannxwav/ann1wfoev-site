@@ -192,13 +192,11 @@ function SocialLinks({ mobile = false, contactOpen, contactRef, onToggleContact 
         {contactOpen && (
           <div className={popupClass}>
             <p className="mb-2 text-[0.62rem] tracking-[0.2em] text-white/38">
-              CONTACT ID
+              Wechat
             </p>
-            <div className="border border-white/12 px-3 py-3">
-              <p className="text-[0.72rem] tracking-[0.18em] text-white/82">
-                v: {contactValue}
-              </p>
-            </div>
+            <p className="text-[0.72rem] tracking-[0.18em] text-white/82">
+              v: {contactValue}
+            </p>
           </div>
         )}
       </div>
@@ -209,7 +207,6 @@ function SocialLinks({ mobile = false, contactOpen, contactRef, onToggleContact 
 function NextProject() {
   return (
     <section className="min-h-[78vh] max-w-2xl flex-col justify-center md:flex">
-      <p className="mb-5 text-xs tracking-[0.35em] text-white/40">02</p>
       <h2 className="mb-8 text-4xl font-light tracking-[0.18em] md:text-6xl">
         NEXT PROJECT
       </h2>
@@ -221,7 +218,6 @@ function NextProject() {
 function OneW4V() {
   return (
     <section className="min-h-[78vh] max-w-2xl flex-col justify-center md:flex">
-      <p className="mb-5 text-xs tracking-[0.35em] text-white/40">03</p>
       <h2 className="mb-8 text-4xl font-light tracking-[0.16em] md:text-6xl">
         1W4V AUDIO
       </h2>

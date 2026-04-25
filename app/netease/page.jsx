@@ -4,14 +4,14 @@ const accounts = [
   {
     role: "Artist profile",
     name: "Ann1wfoev",
-    desc: "The personal stream for solo releases, fragments, and the more intimate side of the project.",
-    link: "https://163cn.tv/Kg6Av5P",
+    desc: "个人作品",
+    link: "https://163cn.tv/5PDHnrb",
   },
   {
     role: "Producer profile",
     name: "neo1Annx",
-    desc: "A parallel archive focused on production work, collaborations, and a wider sonic identity.",
-    link: "https://163cn.tv/Kg6Zyn0",
+    desc: "海量伴奏与制作案例",
+    link: "https://163cn.tv/5PDL3fu",
   },
 ];
 
@@ -30,10 +30,6 @@ export default function NeteasePage() {
             <h1 className="mb-8 text-4xl font-light tracking-[0.16em] md:text-6xl">
               网易云
             </h1>
-            <p className="leading-8 text-white/58">
-              A quiet bridge between the main site and the listening space. Two
-              profiles, two energies, one same core.
-            </p>
           </div>
 
           <div className="grid gap-6">
