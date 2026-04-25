@@ -6,12 +6,12 @@ export default function Nav({ current, setCurrent }) {
   ];
 
   return (
-    <nav className="flex flex-wrap gap-6 md:gap-10 text-xs md:text-sm tracking-[0.22em]">
+    <nav className="grid grid-cols-3 gap-4 md:flex md:flex-wrap md:gap-10 text-[0.68rem] md:text-sm tracking-[0.18em] md:tracking-[0.22em]">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => setCurrent(tab.id)}
-          className={`pb-2 transition ${
+          className={`text-left pb-2 transition whitespace-nowrap ${
             current === tab.id
               ? "text-white border-b border-white"
               : "text-white/40 hover:text-white"
