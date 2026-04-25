@@ -6,7 +6,7 @@ export default function Nav({ current, setCurrent }) {
   ];
 
   return (
-    <nav className="flex flex-wrap gap-5 md:gap-10 text-xs md:text-sm tracking-widest">
+    <nav className="flex flex-wrap gap-6 md:gap-10 text-xs md:text-sm tracking-[0.22em]">
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -14,7 +14,7 @@ export default function Nav({ current, setCurrent }) {
           className={`pb-2 transition ${
             current === tab.id
               ? "text-white border-b border-white"
-              : "text-gray-500 hover:text-white"
+              : "text-white/40 hover:text-white"
           }`}
         >
           {String(tab.id).padStart(2, "0")} {tab.name}
