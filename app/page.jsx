@@ -33,10 +33,11 @@ function Background() {
       <img
         src="/hero.jpg"
         alt=""
-        className="absolute inset-y-0 right-0 z-0 h-full w-full md:w-[70vw] object-cover object-[72%_center] opacity-45 md:opacity-60"
+        className="absolute inset-y-0 right-0 z-0 h-full w-full md:w-[58vw] object-cover object-[55%_center] opacity-70 md:opacity-90"
       />
-      <div className="absolute inset-0 z-10 bg-gradient-to-r from-black via-black/80 to-black/20" />
-      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black via-transparent to-black/50" />
+
+      <div className="absolute inset-0 z-10 bg-gradient-to-r from-black via-black/70 to-black/10" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
     </>
   );
 }
