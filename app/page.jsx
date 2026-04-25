@@ -6,67 +6,109 @@ export default function Home() {
   const [current, setCurrent] = useState(1);
 
   return (
-    <main className="min-h-screen bg-black text-white px-5 py-6 md:px-10 md:py-8 overflow-x-hidden">
-      
-      {/* 顶部 */}
-      <div className="w-full max-w-[1100px] mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
-        <div className="text-xs tracking-[0.25em] text-gray-300">
-          ANN1WFOEV.COM
-        </div>
-        <Nav current={current} setCurrent={setCurrent} />
-      </div>
+    <main className="min-h-screen bg-black text-white overflow-hidden">
+      <div className="relative min-h-screen px-6 py-7 md:px-14 md:py-10">
+        <Background />
 
-      {/* 页面切换 */}
-      {current === 1 && <Hero />}
-      {current === 2 && <NextProject />}
-      {current === 3 && <OneW4V />}
+        <header className="relative z-20 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="text-xs tracking-[0.32em] text-white/80">
+            ANN1WFOEV.COM
+          </div>
+          <Nav current={current} setCurrent={setCurrent} />
+        </header>
+
+        <div className="relative z-20">
+          {current === 1 && <Hero />}
+          {current === 2 && <NextProject />}
+          {current === 3 && <OneW4V />}
+        </div>
+      </div>
     </main>
+  );
+}
+
+function Background() {
+  return (
+    <>
+      <img
+        src="/hero.jpg"
+        alt=""
+        className="absolute inset-y-0 right-0 z-0 h-full w-full md:w-[70vw] object-cover object-[72%_center] opacity-45 md:opacity-60"
+      />
+      <div className="absolute inset-0 z-10 bg-gradient-to-r from-black via-black/80 to-black/20" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black via-transparent to-black/50" />
+    </>
   );
 }
 
 function Hero() {
   return (
-    <section className="w-full min-h-[75vh] flex items-center justify-center">
-      <img
-        src="/hero.jpg"
-        alt="Ann1wfoev"
-        className="w-full max-w-[1100px] h-auto object-contain"
-      />
+    <section className="min-h-[78vh] flex flex-col justify-center max-w-2xl">
+      <h1 className="text-[3.4rem] md:text-[6.8rem] leading-none font-light tracking-[0.12em] mb-6">
+        ANN1WFOEV
+      </h1>
+
+      <p className="text-sm md:text-lg tracking-[0.35em] text-white/70 mb-7">
+        ARTIST / PRODUCER
+      </p>
+
+      <div className="w-12 h-px bg-white/60 mb-7" />
+
+      <p className="text-sm md:text-base text-white/55 tracking-[0.08em] mb-16">
+        one way forever
+      </p>
+
+      <div className="grid grid-cols-1 gap-4 text-xs md:text-sm tracking-[0.18em] text-white/80 max-w-xs">
+        <a href="#" className="flex justify-between hover:text-white transition">
+          INSTAGRAM <span>↗</span>
+        </a>
+        <a href="#" className="flex justify-between hover:text-white transition">
+          SPOTIFY <span>↗</span>
+        </a>
+        <a href="#" className="flex justify-between hover:text-white transition">
+          YOUTUBE <span>↗</span>
+        </a>
+        <a href="#" className="flex justify-between hover:text-white transition">
+          SOUNDCLOUD <span>↗</span>
+        </a>
+        <a href="#" className="flex justify-between hover:text-white transition">
+          CONTACT <span>↗</span>
+        </a>
+      </div>
     </section>
   );
 }
 
 function NextProject() {
   return (
-    <section className="flex flex-col items-center justify-center min-h-[70vh] text-center">
-      <h2 className="text-3xl md:text-5xl font-light tracking-[0.18em] mb-8">
+    <section className="min-h-[78vh] flex flex-col justify-center max-w-2xl">
+      <p className="text-xs tracking-[0.35em] text-white/40 mb-5">02</p>
+      <h2 className="text-4xl md:text-6xl font-light tracking-[0.18em] mb-8">
         NEXT PROJECT
       </h2>
-
-      <div className="w-64 h-64 md:w-80 md:h-80 bg-neutral-900 border border-neutral-800 mb-6" />
-
-      <p className="text-gray-500 tracking-widest">COMING SOON</p>
+      <p className="text-white/55 tracking-[0.2em]">COMING SOON</p>
     </section>
   );
 }
 
 function OneW4V() {
   return (
-    <section className="max-w-2xl mx-auto min-h-[70vh] flex flex-col justify-center">
-      <h2 className="text-3xl md:text-5xl font-light tracking-[0.18em] mb-8">
+    <section className="min-h-[78vh] flex flex-col justify-center max-w-2xl">
+      <p className="text-xs tracking-[0.35em] text-white/40 mb-5">03</p>
+      <h2 className="text-4xl md:text-6xl font-light tracking-[0.16em] mb-8">
         1W4V AUDIO
       </h2>
 
-      <p className="text-gray-400 leading-8 mb-8">
+      <p className="text-white/60 leading-8 mb-10 max-w-xl">
         1W4V Audio is an evolving sound platform built around music production,
         sonic identity and artist-focused design.
       </p>
 
-      <div className="space-y-3 text-sm text-gray-300 tracking-widest">
-        <p>• Custom Beats</p>
-        <p>• Vocal Production</p>
-        <p>• Mixing</p>
-        <p>• Sound Design</p>
+      <div className="space-y-4 text-sm tracking-[0.18em] text-white/75">
+        <p>Custom Beats</p>
+        <p>Vocal Production</p>
+        <p>Mixing</p>
+        <p>Sound Design</p>
       </div>
     </section>
   );
