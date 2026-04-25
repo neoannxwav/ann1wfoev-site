@@ -10,7 +10,7 @@ const accounts = [
   {
     role: "Producer profile",
     name: "neo1Annx",
-    desc: "海量伴奏与制作案例",
+    desc: "播放量1.5亿+制作账号 收录海量伴奏和合作案例",
     link: "https://163cn.tv/5PDL3fu",
   },
 ];

@@ -210,6 +210,9 @@ function NextProject() {
       <h2 className="mb-8 text-4xl font-light tracking-[0.18em] md:text-6xl">
         NEXT PROJECT
       </h2>
+      <p className="mb-8 text-4xl font-light tracking-[0.18em] md:text-6xl">
+        EP/Aphrosole
+      </p>
       <p className="tracking-[0.2em] text-white/55">COMING SOON</p>
     </section>
   );
@@ -222,16 +225,30 @@ function OneW4V() {
         1W4V AUDIO
       </h2>
 
-      <p className="mb-10 max-w-xl leading-8 text-white/60">
-        1W4V Audio is an evolving sound platform built around music production,
-        sonic identity and artist-focused design.
-      </p>
+      <div className="mb-10 max-w-xl space-y-5 text-white/60">
+        <p className="leading-8">1W4V Audio 构建艺术家的声音身份。</p>
+        <p className="leading-8">
+          定制伴奏、人声制作、混音、声音设计——强调清晰度、质感与独特性。
+        </p>
+      </div>
 
-      <div className="space-y-4 text-sm tracking-[0.18em] text-white/75">
-        <p>Custom Beats</p>
-        <p>Vocal Production</p>
-        <p>Mixing</p>
-        <p>Sound Design</p>
+      <div className="space-y-6 text-white/75">
+        <div className="space-y-2">
+          <p className="text-sm tracking-[0.18em]">Custom Beats</p>
+          <p className="text-sm leading-7 text-white/52">围绕你的声音与方向构建</p>
+        </div>
+        <div className="space-y-2">
+          <p className="text-sm tracking-[0.18em]">Vocal Production</p>
+          <p className="text-sm leading-7 text-white/52">编排、修音与人声质感</p>
+        </div>
+        <div className="space-y-2">
+          <p className="text-sm tracking-[0.18em]">Mixing</p>
+          <p className="text-sm leading-7 text-white/52">干净、平衡、现代</p>
+        </div>
+        <div className="space-y-2">
+          <p className="text-sm tracking-[0.18em]">Sound Design</p>
+          <p className="text-sm leading-7 text-white/52">定义声音的细节</p>
+        </div>
       </div>
     </section>
   );
