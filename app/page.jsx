@@ -176,6 +176,10 @@ function SocialLinks({ mobile = false, contactOpen, contactRef, onToggleContact 
         Bilibili <span>↗</span>
       </Link>
 
+      <Link href="/audio-lab" className={linkClass}>
+        AUDIO LAB <span>↗</span>
+      </Link>
+
       <a href="#" className={linkClass}>
         SOUNDCLOUD <span>↗</span>
       </a>
