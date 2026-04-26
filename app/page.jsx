@@ -229,31 +229,26 @@ function OneW4V() {
         1W4V AUDIO
       </h2>
 
-      <div className="mb-10 max-w-xl space-y-5 text-white/60">
-        <p className="leading-8">1W4V Audio 构建艺术家的声音身份。</p>
-        <p className="leading-8">
-          定制伴奏、人声制作、混音、声音设计——强调清晰度、质感与独特性。
-        </p>
-      </div>
+      <p className="mb-14 max-w-xl leading-8 text-white/60">
+        1W4V Audio 构建艺术家的声音身份。
+      </p>
 
-      <div className="space-y-6 text-white/75">
-        <div className="space-y-2">
-          <p className="text-sm tracking-[0.18em]">Custom Beats</p>
-          <p className="text-sm leading-7 text-white/52">围绕你的声音与方向构建</p>
+      <Link
+        href="/audio-lab"
+        className="group block max-w-xl border-t border-white/18 pt-6 transition hover:border-white/48"
+      >
+        <p className="mb-4 text-[0.68rem] tracking-[0.34em] text-white/38">
+          EXPERIMENT 001
+        </p>
+        <div className="flex items-end justify-between gap-8">
+          <span className="text-2xl font-light tracking-[0.22em] text-white/82 md:text-4xl">
+            AUDIO SPACE LAB
+          </span>
+          <span className="text-sm tracking-[0.22em] text-white/42 transition group-hover:translate-x-1 group-hover:text-white">
+            OPEN ↗
+          </span>
         </div>
-        <div className="space-y-2">
-          <p className="text-sm tracking-[0.18em]">Vocal Production</p>
-          <p className="text-sm leading-7 text-white/52">编排、修音与人声质感</p>
-        </div>
-        <div className="space-y-2">
-          <p className="text-sm tracking-[0.18em]">Mixing</p>
-          <p className="text-sm leading-7 text-white/52">干净、平衡、现代</p>
-        </div>
-        <div className="space-y-2">
-          <p className="text-sm tracking-[0.18em]">Sound Design</p>
-          <p className="text-sm leading-7 text-white/52">定义声音的细节</p>
-        </div>
-      </div>
+      </Link>
     </section>
   );
 }
