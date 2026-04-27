@@ -244,8 +244,8 @@ export default function AudioSpaceLab() {
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x02040a, 0.11);
 
-    const camera = new THREE.PerspectiveCamera(54, 1, 0.1, 100);
-    camera.position.set(0, 0, 6.4);
+    const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
+    camera.position.set(0, 0, 7.2);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -350,7 +350,7 @@ export default function AudioSpaceLab() {
     const shellMaterial = new THREE.MeshBasicMaterial({
       color: 0x9fc9ff,
       transparent: true,
-      opacity: 0.035,
+      opacity: 0.018,
       wireframe: true,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
@@ -473,7 +473,7 @@ export default function AudioSpaceLab() {
     const monitorLines = new THREE.LineSegments(monitorLineGeometry, monitorLineMaterial);
     systemGroup.add(monitorLines);
 
-    const fieldGeometry = new THREE.PlaneGeometry(5.2, 1.45, 96, 8);
+    const fieldGeometry = new THREE.PlaneGeometry(4.4, 1.05, 96, 8);
     fieldGeometry.setAttribute("basePosition", fieldGeometry.attributes.position.clone());
     const fieldMaterial = new THREE.MeshBasicMaterial({
       color: 0x7daeff,
@@ -485,8 +485,8 @@ export default function AudioSpaceLab() {
       depthWrite: false,
     });
     const fieldSurface = new THREE.Mesh(fieldGeometry, fieldMaterial);
-    fieldSurface.position.set(0, -0.08, -0.25);
-    fieldSurface.rotation.x = -0.18;
+    fieldSurface.position.set(0, 0.08, -0.28);
+    fieldSurface.rotation.x = -0.12;
     systemGroup.add(fieldSurface);
 
     function resize() {
@@ -517,10 +517,10 @@ export default function AudioSpaceLab() {
       material.uniforms.uTreble.value = metrics.treble;
       material.uniforms.uVolume.value = loudness;
       material.uniforms.uStereoWidth.value = stereoWidth;
-      const centerCorrection = window.innerWidth >= 760 ? 0.22 : 0;
+      const centerCorrection = window.innerWidth >= 760 ? 0 : 0;
       systemGroup.position.x += (centerCorrection + stereoWidth * 0.08 - systemGroup.position.x) * 0.035;
-      systemGroup.position.y += (0.02 - systemGroup.position.y) * 0.035;
-      systemGroup.scale.setScalar(1 + metrics.bass * 0.08 + loudness * 0.04);
+      systemGroup.position.y += (0.28 - systemGroup.position.y) * 0.035;
+      systemGroup.scale.setScalar(0.86 + metrics.bass * 0.05 + loudness * 0.03);
       systemGroup.rotation.set(0, 0, 0);
       points.rotation.set(0, 0, 0);
 
@@ -535,12 +535,12 @@ export default function AudioSpaceLab() {
         let vy = particleVelocities[offset + 1];
         let vz = particleVelocities[offset + 2];
         const bandEnergy = depth === 0 ? metrics.bass : depth === 1 ? metrics.mid : metrics.treble;
-        const width = 2.0 + Math.abs(stereoWidth) * 2.5 + loudness * 1.15 + (depth === 2 ? metrics.treble * 0.8 : 0);
+        const width = 1.7 + Math.abs(stereoWidth) * 1.8 + loudness * 0.85 + (depth === 2 ? metrics.treble * 0.55 : 0);
         const targetX = (seeds[index * 4] - 0.5) * width * (depth === 0 ? 0.82 : depth === 1 ? 1.05 : 1.28);
-        const bandY = depth === 0 ? -0.56 - metrics.bass * 0.22 : depth === 1 ? metrics.mid * 0.18 : 0.46 + metrics.treble * 0.18;
+        const bandY = depth === 0 ? -0.38 - metrics.bass * 0.12 : depth === 1 ? metrics.mid * 0.1 : 0.32 + metrics.treble * 0.1;
         const local = Math.sin(seconds * (0.34 + influence * 0.16) + influence * 12.0 + targetX * 0.8);
         const targetY = bandY + local * (0.035 + bandEnergy * 0.12);
-        const targetZ = (depth - 1) * 0.52 + Math.cos(seconds * 0.22 + influence * 8.0) * (0.04 + bandEnergy * 0.08);
+        const targetZ = (depth - 1) * 0.38 + Math.cos(seconds * 0.22 + influence * 8.0) * (0.03 + bandEnergy * 0.05);
         const damping = 0.86;
 
         vx = vx * damping + (targetX - x) * (0.018 + bandEnergy * 0.035) + transient * targetX * 0.006;
@@ -571,20 +571,20 @@ export default function AudioSpaceLab() {
         const t = bin / (monitorBins - 1);
         const sourceIndex = frequencyData ? Math.min(frequencyData.length - 1, Math.floor(t * frequencyData.length * 0.72)) : 0;
         const energy = frequencyData ? frequencyData[sourceIndex] / 255 : 0;
-        const x = (t - 0.5) * (4.7 + Math.abs(stereoWidth) * 0.9);
-        const y = -0.86 + Math.pow(energy, 1.8) * 1.15;
+        const x = (t - 0.5) * (3.85 + Math.abs(stereoWidth) * 0.65);
+        const y = -0.55 + Math.pow(energy, 1.8) * 0.82;
         const z = -0.42 + t * 0.28;
         const offset = bin * 6;
 
         monitorLinePositions[offset] = x;
-        monitorLinePositions[offset + 1] = -0.86;
+        monitorLinePositions[offset + 1] = -0.55;
         monitorLinePositions[offset + 2] = z;
         monitorLinePositions[offset + 3] = x;
         monitorLinePositions[offset + 4] = y;
         monitorLinePositions[offset + 5] = z;
       }
       monitorLineGeometry.attributes.position.needsUpdate = true;
-      monitorLineMaterial.opacity = 0.12 + loudness * 0.18 + transient * 0.12;
+      monitorLineMaterial.opacity = 0.1 + loudness * 0.14 + transient * 0.08;
 
       const fieldPosition = fieldGeometry.attributes.position;
       const fieldBase = fieldGeometry.attributes.basePosition;
@@ -592,7 +592,7 @@ export default function AudioSpaceLab() {
       for (let point = 0; point < fieldPosition.count; point += 1) {
         const x = fieldBase.getX(point);
         const y = fieldBase.getY(point);
-        const normalizedX = (x / 5.2) + 0.5;
+        const normalizedX = (x / 4.4) + 0.5;
         const sourceIndex = frequencyData ? Math.min(frequencyData.length - 1, Math.floor(normalizedX * frequencyData.length * 0.65)) : 0;
         const energy = frequencyData ? frequencyData[sourceIndex] / 255 : 0;
         const bandWeight = y < -0.15 ? metrics.bass : y > 0.25 ? metrics.treble : metrics.mid;
@@ -602,9 +602,9 @@ export default function AudioSpaceLab() {
       }
 
       fieldPosition.needsUpdate = true;
-      fieldMaterial.opacity = 0.018 + loudness * 0.045;
-      fieldSurface.scale.x = 1 + Math.abs(stereoWidth) * 0.22 + loudness * 0.08;
-      fieldSurface.scale.y = 1 + metrics.bass * 0.12;
+      fieldMaterial.opacity = 0.012 + loudness * 0.026;
+      fieldSurface.scale.x = 0.94 + Math.abs(stereoWidth) * 0.16 + loudness * 0.05;
+      fieldSurface.scale.y = 0.82 + metrics.bass * 0.08;
 
       for (let index = 0; index < pairs.length; index += 1) {
         const meta = index * 5;
@@ -1028,7 +1028,7 @@ export default function AudioSpaceLab() {
             ))}
           </div>
 
-          <div className="absolute inset-x-0 bottom-[5vh] top-[0vh] z-10 overflow-hidden md:bottom-[4vh] md:top-[-5vh]">
+          <div className="absolute bottom-[14vh] right-0 top-[16vh] z-10 w-full overflow-hidden md:bottom-[15vh] md:left-[26rem] md:right-8 md:top-[8rem] md:w-auto">
             <div ref={mountRef} className="absolute inset-0" />
             <div className="pointer-events-none absolute left-[54%] top-[21%] -translate-x-1/2 text-[0.48rem] tracking-[0.34em] text-white/12 md:hidden">
               {isPlaying ? "SIGNAL ACTIVE" : "IDLE DRIFT"}
