@@ -406,7 +406,7 @@ export default function AudioSpaceLab() {
       material.uniforms.uStereoWidth.value = stereoWidth;
       const centerCorrection = window.innerWidth >= 760 ? 0.42 : 0;
       systemGroup.position.x += (centerCorrection + stereoWidth * 0.08 - systemGroup.position.x) * 0.035;
-      systemGroup.position.y += (0.02 + Math.sin(seconds * 0.22) * 0.025 - systemGroup.position.y) * 0.035;
+      systemGroup.position.y += (0.22 + Math.sin(seconds * 0.22) * 0.025 - systemGroup.position.y) * 0.035;
       systemGroup.scale.setScalar(breath);
       systemGroup.rotation.y += 0.0012 + metrics.mid * 0.008;
       systemGroup.rotation.x = Math.sin(seconds * 0.16) * 0.06 + stereoWidth * 0.06;
@@ -776,8 +776,8 @@ export default function AudioSpaceLab() {
             </p>
           </div>
 
-          <div className="pointer-events-none absolute left-[24rem] top-[48%] z-20 hidden w-32 -translate-y-1/2 text-[0.46rem] tracking-[0.34em] text-white/34 md:block">
-            <p className="mb-5 text-white/46">{isPlaying ? "SIGNAL ACTIVE" : "IDLE DRIFT"}</p>
+          <div className="pointer-events-none absolute left-0 top-[58%] z-20 hidden w-36 -translate-y-1/2 text-[0.46rem] tracking-[0.34em] text-white/26 md:block">
+            <p className="mb-5 text-white/38">{isPlaying ? "SIGNAL ACTIVE" : "IDLE DRIFT"}</p>
             {[
               ["BASS", visualMetrics.bass],
               ["MID", visualMetrics.mid],
@@ -788,8 +788,8 @@ export default function AudioSpaceLab() {
                   <span>{label}</span>
                   <span className="tracking-[0.18em]">{value.toFixed(2)}</span>
                 </div>
-                <span className="block h-px bg-white/10">
-                  <span className="block h-px bg-white/70" style={{ width: `${Math.max(8, value * 100)}%` }} />
+                <span className="block h-px bg-white/[0.06]">
+                  <span className="block h-px bg-white/50" style={{ width: `${Math.max(8, value * 100)}%` }} />
                 </span>
               </div>
             ))}
