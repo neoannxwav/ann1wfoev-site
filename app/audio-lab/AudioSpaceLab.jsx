@@ -40,17 +40,23 @@ const vertexShader = `
   void main() {
     vec3 p = position;
     vec3 direction = normalize(p + vec3(0.0001));
+    vec3 tangent = normalize(vec3(-direction.y, direction.x, direction.z * 0.22 + 0.001));
     float shard = floor(aSeed.x * 7.0);
     float flow = sin(uTime * (0.42 + aSeed.y * 0.24) + aSeed.x * 12.566 + p.z * 1.6);
     float heat = 1.0 + uBass * 0.42 + uVolume * 0.18;
     float idle = sin(uTime * 0.2 + aSeed.x * 6.2831) * 0.012;
     float detail = sin(uTime * 2.1 + aSeed.x * 17.0) * uTreble * 0.018;
+    float plume = pow(aSeed.x, 1.35);
+    float curl = sin(uTime * 0.54 + aSeed.x * 18.0 + p.y * 2.2);
+    float drift = sin(uTime * 0.31 + aSeed.y * 10.0 + p.x * 1.8);
 
     p *= heat + idle;
-    p += direction * (flow * uMid * 0.09 + detail);
+    p += direction * (flow * uMid * 0.1 + detail + plume * (uBass * 0.24 + uVolume * 0.18));
+    p += tangent * (curl * (0.05 + uMid * 0.18) + drift * uTreble * 0.045) * plume;
+    p.y += sin(uTime * 0.37 + aSeed.x * 23.0) * (0.035 + uMid * 0.07) * plume;
     p.x += uStereoWidth * (0.6 + abs(p.y) * 0.22);
     p.z -= uStereoWidth * 0.25;
-    p += vec3(aSeed.z, aSeed.w, hash(aSeed.x) - 0.5) * uTreble * 0.018;
+    p += vec3(aSeed.z, aSeed.w, hash(aSeed.x) - 0.5) * uTreble * 0.014 * plume;
 
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
 
@@ -112,13 +118,14 @@ function createParticleField(count) {
     const ringIndex = Math.floor(index / FIELD_LAYERS);
     const progress = ringIndex / Math.ceil(count / FIELD_LAYERS);
     const lane = index % 3;
-    const angle = progress * Math.PI * 5.4 + layer * 0.78;
-    const ribbon = Math.sin(progress * Math.PI * 4.6 + layer) * 0.34;
-    const radius = 0.34 + Math.pow(progress, 1.22) * (2.35 + layer * 0.08);
+    const angle = progress * Math.PI * (4.4 + layer * 0.18) + layer * 0.78;
+    const ribbon = Math.sin(progress * Math.PI * 4.6 + layer) * 0.34 + Math.sin(progress * Math.PI * 11.0 + layer * 2.1) * 0.12;
+    const radius = 0.28 + Math.pow(progress, 1.08) * (2.55 + layer * 0.08);
     const corePull = Math.exp(-progress * 4.2);
-    const x = Math.cos(angle) * radius * 1.12 + progress * 1.15 - 0.75 + ribbon * 0.16;
-    const y = Math.sin(angle) * radius * 0.52 + Math.sin(progress * Math.PI * 8 + layer) * 0.18 - corePull * 0.22;
-    const z = (layer - (FIELD_LAYERS - 1) / 2) * 0.12 + Math.sin(angle * 1.25) * (0.18 + lane * 0.035);
+    const vapor = Math.pow(progress, 1.7);
+    const x = Math.cos(angle) * radius * 1.08 + vapor * 1.34 - 0.82 + ribbon * 0.22;
+    const y = Math.sin(angle) * radius * 0.48 + Math.sin(progress * Math.PI * 8 + layer) * 0.2 - corePull * 0.22 + vapor * 0.22;
+    const z = (layer - (FIELD_LAYERS - 1) / 2) * 0.13 + Math.sin(angle * 1.25) * (0.2 + lane * 0.04);
     const offset = index * 3;
     const seedOffset = index * 4;
     const cool = 0.45 + layer / FIELD_LAYERS * 0.38;
@@ -501,9 +508,12 @@ export default function AudioSpaceLab() {
             Math.sin(seconds * 0.34 + path) * 0.18;
           const matter =
             Math.sin(t * Math.PI * 7 + seconds * 0.86 + path) * bend * tail +
-            Math.sin(t * Math.PI * 15 - seconds * 0.48 + path * 1.4) * evaporation * tail;
+            Math.sin(t * Math.PI * 15 - seconds * 0.48 + path * 1.4) * evaporation * tail +
+            Math.sin(t * Math.PI * 23 + seconds * 0.19 + path * 2.7) * 0.09 * tail * (0.4 + metrics.mid);
           const radius = (0.2 + tail * (2.48 + (path % 5) * 0.14) + matter) * radialHeat;
-          const lift = Math.sin(seconds * 0.52 + path + t * 8) * (0.06 + metrics.mid * 0.08) * tail;
+          const lift =
+            Math.sin(seconds * 0.52 + path + t * 8) * (0.06 + metrics.mid * 0.08) * tail +
+            Math.cos(seconds * 0.27 + path * 1.9 + t * 17) * 0.05 * tail;
           const offset = index * 3;
 
           livePositions[offset] = Math.cos(angle) * radius * 1.13 + tail * 0.78 - 0.48 + stereoWidth * 0.1;
@@ -830,12 +840,12 @@ export default function AudioSpaceLab() {
             <p className="mt-7 max-w-[11rem] text-[0.5rem] uppercase leading-6 tracking-[0.34em] text-white/22">
               LET SOUND FORM ITS OWN GEOMETRY
             </p>
-            <p className="mt-3 max-w-sm text-xs leading-6 tracking-[0.12em] text-white/0 transition hover:text-white/36">
+            <p className="hidden">
               拖入音频，让声音生成它自己的空间形态。
             </p>
           </div>
 
-          <div className="pointer-events-none absolute left-0 top-[58%] z-20 hidden w-36 -translate-y-1/2 text-[0.46rem] tracking-[0.34em] text-white/26 md:block">
+          <div className="pointer-events-none absolute left-0 top-[58%] z-20 hidden w-36 -translate-y-1/2 text-[0.46rem] tracking-[0.34em] text-white/26 md:hidden">
             <p className="mb-5 text-white/38">{isPlaying ? "SIGNAL ACTIVE" : "IDLE DRIFT"}</p>
             {[
               ["BASS", visualMetrics.bass],
