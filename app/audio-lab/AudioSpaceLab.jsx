@@ -240,6 +240,7 @@ export default function AudioSpaceLab() {
     treble: 0,
     volume: 0,
     stereoWidth: 0,
+    transient: 0,
   });
 
   const [isDragging, setIsDragging] = useState(false);
@@ -273,6 +274,34 @@ export default function AudioSpaceLab() {
 
     const count = window.innerWidth < 760 ? MOBILE_PARTICLE_COUNT : PARTICLE_COUNT;
     const { positions, seeds, colors } = createParticleField(count);
+    const particleVelocities = new Float32Array(count * 3);
+    const particleLife = new Float32Array(count);
+    const particleDepth = new Float32Array(count);
+    const particleInfluence = new Float32Array(count);
+
+    function resetParticle(index, burst = 0) {
+      const offset = index * 3;
+      const depthLayer = index % 3;
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 0.18 + Math.random() * (depthLayer === 0 ? 2.8 : depthLayer === 1 ? 2.15 : 1.55);
+      const plume = Math.random() ** 1.8;
+      const z = depthLayer === 0 ? -1.45 - Math.random() * 1.25 : depthLayer === 1 ? -0.48 + Math.random() * 0.92 : 0.48 + Math.random() * 0.85;
+
+      positions[offset] = Math.cos(angle) * radius * 1.08 + plume * 0.8 - 0.35;
+      positions[offset + 1] = Math.sin(angle) * radius * 0.58 + plume * 0.2 - 0.08;
+      positions[offset + 2] = z;
+      particleVelocities[offset] = Math.cos(angle) * (0.004 + burst * 0.035);
+      particleVelocities[offset + 1] = Math.sin(angle) * (0.003 + burst * 0.02);
+      particleVelocities[offset + 2] = (Math.random() - 0.5) * 0.006;
+      particleLife[index] = Math.random();
+      particleDepth[index] = depthLayer;
+      particleInfluence[index] = 0.45 + Math.random() * 0.75;
+    }
+
+    for (let index = 0; index < count; index += 1) {
+      resetParticle(index);
+    }
+
     const systemGroup = new THREE.Group();
     systemGroup.position.set(0, 0.02, 0);
     scene.add(systemGroup);
@@ -390,6 +419,7 @@ export default function AudioSpaceLab() {
     );
     const surfaces = surfaceMaterials.map((surfaceMaterial, index) => {
       const surface = new THREE.Mesh(createSurfaceGeometry(index), surfaceMaterial);
+      surface.geometry.setAttribute("basePosition", surface.geometry.attributes.position.clone());
       surface.position.set(0.42 + index * 0.18, -0.1 + index * 0.04, -0.18 - index * 0.16);
       surface.rotation.set(0.82 + index * 0.18, -0.36 + index * 0.16, -0.44 + index * 0.28);
       surface.scale.set(1 + index * 0.18, 0.78 + index * 0.08, 1);
@@ -442,7 +472,10 @@ export default function AudioSpaceLab() {
       const bassPulse = metrics.bass * 1.25;
       const loudness = metrics.volume;
       const stereoWidth = metrics.stereoWidth;
+      const transient = metrics.transient;
       const breath = 1 + metrics.bass * 0.28 + loudness * 0.16 + Math.sin(seconds * 0.8) * 0.018;
+      const particleAttribute = geometry.attributes.position;
+      const liveParticlePositions = particleAttribute.array;
       const lineAttribute = lineGeometry.attributes.position;
       const liveLinePositions = lineAttribute.array;
 
@@ -456,10 +489,57 @@ export default function AudioSpaceLab() {
       systemGroup.position.x += (centerCorrection + stereoWidth * 0.08 - systemGroup.position.x) * 0.035;
       systemGroup.position.y += (0.12 + Math.sin(seconds * 0.22) * 0.025 - systemGroup.position.y) * 0.035;
       systemGroup.scale.setScalar(breath);
-      systemGroup.rotation.y += 0.0012 + metrics.mid * 0.008;
-      systemGroup.rotation.x = Math.sin(seconds * 0.16) * 0.06 + stereoWidth * 0.06;
-      points.rotation.y += 0.0006 + metrics.mid * 0.004;
-      points.rotation.x = Math.sin(seconds * 0.18) * 0.05 + stereoWidth * 0.05;
+      systemGroup.rotation.set(0, 0, 0);
+      points.rotation.set(0, 0, 0);
+
+      for (let index = 0; index < count; index += 1) {
+        const offset = index * 3;
+        const depth = particleDepth[index];
+        const influence = particleInfluence[index];
+        let x = liveParticlePositions[offset];
+        let y = liveParticlePositions[offset + 1];
+        let z = liveParticlePositions[offset + 2];
+        let vx = particleVelocities[offset];
+        let vy = particleVelocities[offset + 1];
+        let vz = particleVelocities[offset + 2];
+        const radius = Math.sqrt(x * x + y * y + z * z) + 0.0001;
+        const layerSpeed = depth === 0 ? 0.45 : depth === 1 ? 0.75 : 1.05;
+        const curlX =
+          Math.sin(y * 1.7 + seconds * (0.28 + metrics.mid * 0.6) + z * 0.8) +
+          Math.cos(z * 1.2 - seconds * 0.19 + influence * 5.0);
+        const curlY =
+          Math.sin(z * 1.5 - seconds * (0.24 + metrics.mid * 0.48) + x * 0.9) -
+          Math.cos(x * 1.1 + seconds * 0.22 + influence * 4.0);
+        const curlZ =
+          Math.sin(x * 1.4 + y * 0.8 + seconds * 0.2) * 0.7 +
+          Math.cos(y * 1.3 - z * 0.6 + seconds * 0.17);
+        const outward = (transient * 0.08 + metrics.treble * 0.012) * influence;
+        const gravity = (0.002 + metrics.bass * 0.014) * (depth === 0 ? 0.55 : 1);
+        const damping = 0.952 - metrics.treble * 0.018;
+
+        vx = vx * damping + curlX * 0.0028 * layerSpeed + (x / radius) * outward - x * gravity;
+        vy = vy * damping + curlY * 0.0024 * layerSpeed + (y / radius) * outward - y * gravity;
+        vz = vz * (damping + 0.018) + curlZ * 0.0018 * layerSpeed + (z / radius) * outward * 0.38 - z * gravity * 0.6;
+
+        x += vx;
+        y += vy;
+        z += vz;
+        particleLife[index] += 0.0025 + loudness * 0.006 + transient * 0.018;
+
+        if (particleLife[index] > 1 || radius > 4.6) {
+          resetParticle(index, transient);
+          continue;
+        }
+
+        liveParticlePositions[offset] = x;
+        liveParticlePositions[offset + 1] = y;
+        liveParticlePositions[offset + 2] = z;
+        particleVelocities[offset] = vx;
+        particleVelocities[offset + 1] = vy;
+        particleVelocities[offset + 2] = vz;
+      }
+
+      particleAttribute.needsUpdate = true;
 
       for (let index = 0; index < pairs.length; index += 1) {
         const meta = index * 5;
@@ -488,7 +568,7 @@ export default function AudioSpaceLab() {
 
       lineAttribute.needsUpdate = true;
       lineMaterial.opacity = 0.08 + metrics.mid * 0.2 + loudness * 0.1;
-      structureLines.rotation.y = Math.sin(seconds * 0.18) * 0.05 + metrics.mid * 0.18;
+      structureLines.rotation.set(0, 0, 0);
 
       flowLines.forEach((line, path) => {
         const positionAttribute = line.geometry.attributes.position;
@@ -522,14 +602,14 @@ export default function AudioSpaceLab() {
         }
 
         positionAttribute.needsUpdate = true;
-        line.rotation.y += 0.0018 + metrics.mid * 0.009 + loudness * 0.004;
-        line.rotation.x = Math.sin(seconds * 0.28 + path) * 0.07 + stereoWidth * 0.04;
-        line.rotation.z += Math.sin(seconds * 0.2 + path) * 0.0008;
+        line.rotation.x = 0.1 + path * 0.035 + stereoWidth * 0.04;
+        line.rotation.y = path * 0.07;
+        line.rotation.z = path * 0.72;
       });
       flowMaterial.opacity = 0.1 + metrics.mid * 0.2 + metrics.bass * 0.06 + loudness * 0.05;
 
-      shell.rotation.x += 0.0006 + metrics.mid * 0.002;
-      shell.rotation.y -= 0.0009 + metrics.mid * 0.004;
+      shell.rotation.x = Math.sin(seconds * 0.11) * 0.04 + metrics.mid * 0.06;
+      shell.rotation.y = Math.cos(seconds * 0.13) * 0.05 - metrics.mid * 0.08;
       shell.scale.set(
         1.18 + metrics.bass * 0.42 + loudness * 0.12,
         0.82 + metrics.bass * 0.28 + loudness * 0.08,
@@ -548,6 +628,21 @@ export default function AudioSpaceLab() {
 
       surfaces.forEach((surface, index) => {
         const phase = seconds * (0.22 + index * 0.03) + index;
+        const positionAttribute = surface.geometry.attributes.position;
+        const basePosition = surface.geometry.attributes.basePosition;
+
+        for (let point = 0; point < positionAttribute.count; point += 1) {
+          const x = basePosition.getX(point);
+          const y = basePosition.getY(point);
+          const z = basePosition.getZ(point);
+          const wave =
+            Math.sin(x * 2.2 + seconds * (0.85 + metrics.mid * 1.2) + index) * (0.045 + metrics.mid * 0.12) +
+            Math.cos(y * 4.4 - seconds * (0.65 + metrics.treble) + index) * (0.025 + metrics.treble * 0.08);
+
+          positionAttribute.setZ(point, z + wave + metrics.bass * Math.sin(x * 1.2 + y * 1.8 + phase) * 0.08);
+        }
+
+        positionAttribute.needsUpdate = true;
         surface.rotation.z += 0.0009 + metrics.mid * 0.004;
         surface.rotation.y = -0.36 + index * 0.16 + Math.sin(phase) * (0.05 + metrics.mid * 0.08);
         surface.position.x = 0.42 + index * 0.18 + Math.sin(phase * 0.7) * 0.08;
@@ -635,6 +730,7 @@ export default function AudioSpaceLab() {
         const mid = averageRange(frequencyData, 0.08, 0.42);
         const treble = averageRange(frequencyData, 0.42, 0.9);
         const volume = Math.min(1, bass * 0.42 + mid * 0.36 + treble * 0.22);
+        const transient = Math.max(0, volume - metricsRef.current.volume) * 3.2;
         let stereoWidth = 0;
 
         if (leftAnalyserRef.current && rightAnalyserRef.current && leftDataRef.current && rightDataRef.current) {
@@ -648,6 +744,7 @@ export default function AudioSpaceLab() {
         metricsRef.current.treble += (treble - metricsRef.current.treble) * 0.22;
         metricsRef.current.volume += (volume - metricsRef.current.volume) * 0.16;
         metricsRef.current.stereoWidth += (stereoWidth - metricsRef.current.stereoWidth) * 0.12;
+        metricsRef.current.transient += (Math.min(1, transient) - metricsRef.current.transient) * 0.36;
 
         const now = performance.now();
         if (now - metricsRenderRef.current > 140) {
@@ -664,6 +761,7 @@ export default function AudioSpaceLab() {
         metricsRef.current.treble *= 0.9;
         metricsRef.current.volume *= 0.94;
         metricsRef.current.stereoWidth *= 0.9;
+        metricsRef.current.transient *= 0.82;
       }
 
       requestAnimationFrame(analyse);
@@ -715,6 +813,7 @@ export default function AudioSpaceLab() {
       treble: 0,
       volume: 0,
       stereoWidth: 0,
+      transient: 0,
     };
   }
 
