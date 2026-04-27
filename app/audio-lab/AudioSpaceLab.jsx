@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
-const PARTICLE_COUNT = 1280;
-const MOBILE_PARTICLE_COUNT = 760;
+const PARTICLE_COUNT = 720;
+const MOBILE_PARTICLE_COUNT = 420;
 const FIELD_LAYERS = 6;
 const LINE_SEGMENT_COUNT = 760;
 const FLOW_PATH_COUNT = 18;
@@ -39,33 +39,18 @@ const vertexShader = `
 
   void main() {
     vec3 p = position;
-    vec3 direction = normalize(p + vec3(0.0001));
-    vec3 tangent = normalize(vec3(-direction.y, direction.x, direction.z * 0.22 + 0.001));
     float shard = floor(aSeed.x * 7.0);
-    float flow = sin(uTime * (0.42 + aSeed.y * 0.24) + aSeed.x * 12.566 + p.z * 1.6);
-    float heat = 1.0 + uBass * 0.42 + uVolume * 0.18;
-    float idle = sin(uTime * 0.2 + aSeed.x * 6.2831) * 0.012;
-    float detail = sin(uTime * 2.1 + aSeed.x * 17.0) * uTreble * 0.018;
-    float plume = pow(aSeed.x, 1.35);
-    float curl = sin(uTime * 0.54 + aSeed.x * 18.0 + p.y * 2.2);
-    float drift = sin(uTime * 0.31 + aSeed.y * 10.0 + p.x * 1.8);
-
-    p *= heat + idle;
-    p += direction * (flow * uMid * 0.1 + detail + plume * (uBass * 0.24 + uVolume * 0.18));
-    p += tangent * (curl * (0.05 + uMid * 0.18) + drift * uTreble * 0.045) * plume;
-    p.y += sin(uTime * 0.37 + aSeed.x * 23.0) * (0.035 + uMid * 0.07) * plume;
-    p.x += uStereoWidth * (0.6 + abs(p.y) * 0.22);
-    p.z -= uStereoWidth * 0.25;
-    p += vec3(aSeed.z, aSeed.w, hash(aSeed.x) - 0.5) * uTreble * 0.014 * plume;
+    p.x += uStereoWidth * 0.18 * (aSeed.z + 0.4);
+    p.z -= uStereoWidth * 0.08;
 
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
 
     vShard = shard;
-    vFlicker = 0.82 + 0.18 * sin(uTime * 1.8 + aSeed.x * 13.0);
-    vColor = color + vec3(0.05, 0.1, 0.16) * uTreble;
+    vFlicker = 0.9 + 0.1 * sin(uTime * 1.2 + aSeed.x * 13.0);
+    vColor = color + vec3(0.04, 0.07, 0.1) * uTreble;
 
     gl_Position = projectionMatrix * mvPosition;
-    gl_PointSize = uBaseSize * uPixelRatio * (1.0 + uBass * 0.8 + uTreble * 0.9) * (300.0 / -mvPosition.z);
+    gl_PointSize = uBaseSize * uPixelRatio * (1.0 + uVolume * 0.65 + uTreble * 0.28) * (300.0 / -mvPosition.z);
   }
 `;
 const fragmentShader = `
@@ -86,7 +71,7 @@ const fragmentShader = `
     float dist = length(uv);
     float core = smoothstep(0.5, 0.05, dist);
     float flicker = mix(vFlicker, 1.0, uTreble * 0.18);
-    float alpha = core * (0.24 + uVolume * 0.22 + uTreble * 0.1) * flicker;
+    float alpha = core * (0.16 + uVolume * 0.18 + uTreble * 0.06) * flicker;
 
     if (alpha < 0.02) {
       discard;
@@ -282,17 +267,16 @@ export default function AudioSpaceLab() {
     function resetParticle(index, burst = 0) {
       const offset = index * 3;
       const depthLayer = index % 3;
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 0.18 + Math.random() * (depthLayer === 0 ? 2.8 : depthLayer === 1 ? 2.15 : 1.55);
-      const plume = Math.random() ** 1.8;
-      const z = depthLayer === 0 ? -1.45 - Math.random() * 1.25 : depthLayer === 1 ? -0.48 + Math.random() * 0.92 : 0.48 + Math.random() * 0.85;
+      const x = (Math.random() - 0.5) * (depthLayer === 0 ? 3.4 : depthLayer === 1 ? 4.35 : 5.2);
+      const bandY = depthLayer === 0 ? -0.62 : depthLayer === 1 ? 0.02 : 0.52;
+      const z = depthLayer === 0 ? -0.95 - Math.random() * 0.7 : depthLayer === 1 ? -0.15 + Math.random() * 0.5 : 0.55 + Math.random() * 0.65;
 
-      positions[offset] = Math.cos(angle) * radius * 1.08 + plume * 0.8 - 0.35;
-      positions[offset + 1] = Math.sin(angle) * radius * 0.58 + plume * 0.2 - 0.08;
+      positions[offset] = x;
+      positions[offset + 1] = bandY + (Math.random() - 0.5) * 0.22;
       positions[offset + 2] = z;
-      particleVelocities[offset] = Math.cos(angle) * (0.004 + burst * 0.035);
-      particleVelocities[offset + 1] = Math.sin(angle) * (0.003 + burst * 0.02);
-      particleVelocities[offset + 2] = (Math.random() - 0.5) * 0.006;
+      particleVelocities[offset] = 0;
+      particleVelocities[offset + 1] = 0;
+      particleVelocities[offset + 2] = 0;
       particleLife[index] = Math.random();
       particleDepth[index] = depthLayer;
       particleInfluence[index] = 0.45 + Math.random() * 0.75;
@@ -458,6 +442,53 @@ export default function AudioSpaceLab() {
       return ring;
     });
 
+    structureLines.visible = false;
+    flowLines.forEach((line) => {
+      line.visible = false;
+    });
+    shell.visible = false;
+    core.visible = false;
+    planes.forEach((plane) => {
+      plane.visible = false;
+    });
+    surfaces.forEach((surface) => {
+      surface.visible = false;
+    });
+    halo.visible = false;
+    waveRings.forEach((ring) => {
+      ring.visible = false;
+    });
+
+    const monitorBins = 96;
+    const monitorLinePositions = new Float32Array(monitorBins * 2 * 3);
+    const monitorLineGeometry = new THREE.BufferGeometry();
+    monitorLineGeometry.setAttribute("position", new THREE.BufferAttribute(monitorLinePositions, 3));
+    const monitorLineMaterial = new THREE.LineBasicMaterial({
+      color: 0xc8dcff,
+      transparent: true,
+      opacity: 0.24,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const monitorLines = new THREE.LineSegments(monitorLineGeometry, monitorLineMaterial);
+    systemGroup.add(monitorLines);
+
+    const fieldGeometry = new THREE.PlaneGeometry(5.2, 1.45, 96, 8);
+    fieldGeometry.setAttribute("basePosition", fieldGeometry.attributes.position.clone());
+    const fieldMaterial = new THREE.MeshBasicMaterial({
+      color: 0x7daeff,
+      transparent: true,
+      opacity: 0.035,
+      wireframe: true,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const fieldSurface = new THREE.Mesh(fieldGeometry, fieldMaterial);
+    fieldSurface.position.set(0, -0.08, -0.25);
+    fieldSurface.rotation.x = -0.18;
+    systemGroup.add(fieldSurface);
+
     function resize() {
       const width = mount.clientWidth || window.innerWidth;
       const height = mount.clientHeight || window.innerHeight;
@@ -476,6 +507,7 @@ export default function AudioSpaceLab() {
       const breath = 1 + metrics.bass * 0.28 + loudness * 0.16 + Math.sin(seconds * 0.8) * 0.018;
       const particleAttribute = geometry.attributes.position;
       const liveParticlePositions = particleAttribute.array;
+      const frequencyData = frequencyDataRef.current;
       const lineAttribute = lineGeometry.attributes.position;
       const liveLinePositions = lineAttribute.array;
 
@@ -485,10 +517,10 @@ export default function AudioSpaceLab() {
       material.uniforms.uTreble.value = metrics.treble;
       material.uniforms.uVolume.value = loudness;
       material.uniforms.uStereoWidth.value = stereoWidth;
-      const centerCorrection = window.innerWidth >= 760 ? 0.26 : 0;
+      const centerCorrection = window.innerWidth >= 760 ? 0.22 : 0;
       systemGroup.position.x += (centerCorrection + stereoWidth * 0.08 - systemGroup.position.x) * 0.035;
-      systemGroup.position.y += (0.12 + Math.sin(seconds * 0.22) * 0.025 - systemGroup.position.y) * 0.035;
-      systemGroup.scale.setScalar(breath);
+      systemGroup.position.y += (0.02 - systemGroup.position.y) * 0.035;
+      systemGroup.scale.setScalar(1 + metrics.bass * 0.08 + loudness * 0.04);
       systemGroup.rotation.set(0, 0, 0);
       points.rotation.set(0, 0, 0);
 
@@ -502,33 +534,27 @@ export default function AudioSpaceLab() {
         let vx = particleVelocities[offset];
         let vy = particleVelocities[offset + 1];
         let vz = particleVelocities[offset + 2];
-        const radius = Math.sqrt(x * x + y * y + z * z) + 0.0001;
-        const layerSpeed = depth === 0 ? 0.45 : depth === 1 ? 0.75 : 1.05;
-        const curlX =
-          Math.sin(y * 1.7 + seconds * (0.28 + metrics.mid * 0.6) + z * 0.8) +
-          Math.cos(z * 1.2 - seconds * 0.19 + influence * 5.0);
-        const curlY =
-          Math.sin(z * 1.5 - seconds * (0.24 + metrics.mid * 0.48) + x * 0.9) -
-          Math.cos(x * 1.1 + seconds * 0.22 + influence * 4.0);
-        const curlZ =
-          Math.sin(x * 1.4 + y * 0.8 + seconds * 0.2) * 0.7 +
-          Math.cos(y * 1.3 - z * 0.6 + seconds * 0.17);
-        const outward = (transient * 0.08 + metrics.treble * 0.012) * influence;
-        const gravity = (0.002 + metrics.bass * 0.014) * (depth === 0 ? 0.55 : 1);
-        const damping = 0.952 - metrics.treble * 0.018;
+        const bandEnergy = depth === 0 ? metrics.bass : depth === 1 ? metrics.mid : metrics.treble;
+        const width = 2.0 + Math.abs(stereoWidth) * 2.5 + loudness * 1.15 + (depth === 2 ? metrics.treble * 0.8 : 0);
+        const targetX = (seeds[index * 4] - 0.5) * width * (depth === 0 ? 0.82 : depth === 1 ? 1.05 : 1.28);
+        const bandY = depth === 0 ? -0.56 - metrics.bass * 0.22 : depth === 1 ? metrics.mid * 0.18 : 0.46 + metrics.treble * 0.18;
+        const local = Math.sin(seconds * (0.34 + influence * 0.16) + influence * 12.0 + targetX * 0.8);
+        const targetY = bandY + local * (0.035 + bandEnergy * 0.12);
+        const targetZ = (depth - 1) * 0.52 + Math.cos(seconds * 0.22 + influence * 8.0) * (0.04 + bandEnergy * 0.08);
+        const damping = 0.86;
 
-        vx = vx * damping + curlX * 0.0028 * layerSpeed + (x / radius) * outward - x * gravity;
-        vy = vy * damping + curlY * 0.0024 * layerSpeed + (y / radius) * outward - y * gravity;
-        vz = vz * (damping + 0.018) + curlZ * 0.0018 * layerSpeed + (z / radius) * outward * 0.38 - z * gravity * 0.6;
+        vx = vx * damping + (targetX - x) * (0.018 + bandEnergy * 0.035) + transient * targetX * 0.006;
+        vy = vy * damping + (targetY - y) * (0.018 + bandEnergy * 0.035);
+        vz = vz * damping + (targetZ - z) * 0.02;
 
         x += vx;
         y += vy;
         z += vz;
-        particleLife[index] += 0.0025 + loudness * 0.006 + transient * 0.018;
+        particleLife[index] += 0.001 + loudness * 0.002;
 
-        if (particleLife[index] > 1 || radius > 4.6) {
-          resetParticle(index, transient);
-          continue;
+        if (particleLife[index] > 1) {
+          particleLife[index] = 0;
+          particleInfluence[index] = 0.45 + Math.random() * 0.75;
         }
 
         liveParticlePositions[offset] = x;
@@ -540,6 +566,45 @@ export default function AudioSpaceLab() {
       }
 
       particleAttribute.needsUpdate = true;
+
+      for (let bin = 0; bin < monitorBins; bin += 1) {
+        const t = bin / (monitorBins - 1);
+        const sourceIndex = frequencyData ? Math.min(frequencyData.length - 1, Math.floor(t * frequencyData.length * 0.72)) : 0;
+        const energy = frequencyData ? frequencyData[sourceIndex] / 255 : 0;
+        const x = (t - 0.5) * (4.7 + Math.abs(stereoWidth) * 0.9);
+        const y = -0.86 + Math.pow(energy, 1.8) * 1.15;
+        const z = -0.42 + t * 0.28;
+        const offset = bin * 6;
+
+        monitorLinePositions[offset] = x;
+        monitorLinePositions[offset + 1] = -0.86;
+        monitorLinePositions[offset + 2] = z;
+        monitorLinePositions[offset + 3] = x;
+        monitorLinePositions[offset + 4] = y;
+        monitorLinePositions[offset + 5] = z;
+      }
+      monitorLineGeometry.attributes.position.needsUpdate = true;
+      monitorLineMaterial.opacity = 0.12 + loudness * 0.18 + transient * 0.12;
+
+      const fieldPosition = fieldGeometry.attributes.position;
+      const fieldBase = fieldGeometry.attributes.basePosition;
+
+      for (let point = 0; point < fieldPosition.count; point += 1) {
+        const x = fieldBase.getX(point);
+        const y = fieldBase.getY(point);
+        const normalizedX = (x / 5.2) + 0.5;
+        const sourceIndex = frequencyData ? Math.min(frequencyData.length - 1, Math.floor(normalizedX * frequencyData.length * 0.65)) : 0;
+        const energy = frequencyData ? frequencyData[sourceIndex] / 255 : 0;
+        const bandWeight = y < -0.15 ? metrics.bass : y > 0.25 ? metrics.treble : metrics.mid;
+        const z = fieldBase.getZ(point) + Math.pow(energy, 1.7) * 0.16 + bandWeight * 0.1;
+
+        fieldPosition.setZ(point, z);
+      }
+
+      fieldPosition.needsUpdate = true;
+      fieldMaterial.opacity = 0.018 + loudness * 0.045;
+      fieldSurface.scale.x = 1 + Math.abs(stereoWidth) * 0.22 + loudness * 0.08;
+      fieldSurface.scale.y = 1 + metrics.bass * 0.12;
 
       for (let index = 0; index < pairs.length; index += 1) {
         const meta = index * 5;
@@ -567,7 +632,7 @@ export default function AudioSpaceLab() {
       }
 
       lineAttribute.needsUpdate = true;
-      lineMaterial.opacity = 0.08 + metrics.mid * 0.2 + loudness * 0.1;
+      lineMaterial.opacity = 0;
       structureLines.rotation.set(0, 0, 0);
 
       flowLines.forEach((line, path) => {
@@ -606,7 +671,7 @@ export default function AudioSpaceLab() {
         line.rotation.y = path * 0.07;
         line.rotation.z = path * 0.72;
       });
-      flowMaterial.opacity = 0.1 + metrics.mid * 0.2 + metrics.bass * 0.06 + loudness * 0.05;
+      flowMaterial.opacity = 0;
 
       shell.rotation.x = Math.sin(seconds * 0.11) * 0.04 + metrics.mid * 0.06;
       shell.rotation.y = Math.cos(seconds * 0.13) * 0.05 - metrics.mid * 0.08;
@@ -615,7 +680,7 @@ export default function AudioSpaceLab() {
         0.82 + metrics.bass * 0.28 + loudness * 0.08,
         0.58 + metrics.bass * 0.22 + Math.abs(stereoWidth) * 0.1
       );
-      shellMaterial.opacity = 0.018 + metrics.bass * 0.04 + metrics.mid * 0.025;
+      shellMaterial.opacity = 0;
       core.scale.setScalar(0.86 + metrics.bass * 0.18 + loudness * 0.08);
 
       planes.forEach((plane, index) => {
