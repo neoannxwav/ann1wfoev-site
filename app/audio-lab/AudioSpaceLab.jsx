@@ -6,8 +6,10 @@ import * as THREE from "three";
 
 const PARTICLE_COUNT = 760;
 const MOBILE_PARTICLE_COUNT = 520;
-const TRAJECTORY_COUNT = 6;
-const LINE_SEGMENT_COUNT = 420;
+const FIELD_LAYERS = 6;
+const LINE_SEGMENT_COUNT = 520;
+const FLOW_PATH_COUNT = 5;
+const FLOW_PATH_POINTS = 180;
 const FFT_SIZE = 2048;
 const vertexShader = `
   uniform float uTime;
@@ -38,17 +40,16 @@ const vertexShader = `
     vec3 p = position;
     vec3 direction = normalize(p + vec3(0.0001));
     float shard = floor(aSeed.x * 7.0);
-    float wave = sin(uTime * (0.34 + aSeed.y * 0.32) + aSeed.x * 6.2831 + p.x * 1.7);
-    float bassCollapse = 1.0 - uBass * 0.18;
-    float loudBreath = 1.0 + uVolume * 0.055;
-    float idle = sin(uTime * 0.22 + aSeed.x * 6.2831) * 0.018;
-    float detail = sin(uTime * 2.6 + aSeed.x * 19.0) * uTreble * 0.028;
+    float flow = sin(uTime * (0.42 + aSeed.y * 0.24) + aSeed.x * 12.566 + p.z * 1.6);
+    float heat = 1.0 + uBass * 0.42 + uVolume * 0.18;
+    float idle = sin(uTime * 0.2 + aSeed.x * 6.2831) * 0.012;
+    float detail = sin(uTime * 2.1 + aSeed.x * 17.0) * uTreble * 0.018;
 
-    p *= bassCollapse * loudBreath + idle;
-    p += direction * (wave * uMid * 0.065 + detail);
+    p *= heat + idle;
+    p += direction * (flow * uMid * 0.09 + detail);
     p.x += uStereoWidth * (0.6 + abs(p.y) * 0.22);
     p.z -= uStereoWidth * 0.25;
-    p += vec3(aSeed.z, aSeed.w, hash(aSeed.x) - 0.5) * uTreble * 0.024;
+    p += vec3(aSeed.z, aSeed.w, hash(aSeed.x) - 0.5) * uTreble * 0.018;
 
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
 
@@ -57,7 +58,7 @@ const vertexShader = `
     vColor = color + vec3(0.05, 0.1, 0.16) * uTreble;
 
     gl_Position = projectionMatrix * mvPosition;
-    gl_PointSize = uBaseSize * uPixelRatio * (1.0 + uTreble * 1.4) * (300.0 / -mvPosition.z);
+    gl_PointSize = uBaseSize * uPixelRatio * (1.0 + uBass * 0.8 + uTreble * 0.9) * (300.0 / -mvPosition.z);
   }
 `;
 const fragmentShader = `
@@ -104,52 +105,33 @@ function createParticleField(count) {
   const positions = new Float32Array(count * 3);
   const seeds = new Float32Array(count * 4);
   const colors = new Float32Array(count * 3);
-  const center = { x: 0, y: 0, z: 0 };
 
   for (let index = 0; index < count; index += 1) {
-    const track = index % TRAJECTORY_COUNT;
-    const progress = Math.floor(index / TRAJECTORY_COUNT) / Math.ceil(count / TRAJECTORY_COUNT);
-    const ridge = track < 4;
-    const x = (progress - 0.5) * 5.4;
-    const baseWave = Math.sin(progress * Math.PI * 7.0 + track * 0.72) * 0.11;
-    const longWave = Math.sin(progress * Math.PI * 2.0 - track * 0.35) * 0.2;
-    const lane = (track - 1.5) * 0.08;
-    const y = ridge
-      ? baseWave + longWave * 0.38 + lane
-      : (Math.random() - 0.5) * 1.7;
-    const z = ridge
-      ? (track - 1.5) * 0.16 + Math.sin(progress * Math.PI * 3.0) * 0.08
-      : -1.2 + Math.random() * 2.4;
+    const layer = index % FIELD_LAYERS;
+    const ringIndex = Math.floor(index / FIELD_LAYERS);
+    const progress = ringIndex / Math.ceil(count / FIELD_LAYERS);
+    const angle = progress * Math.PI * 2 * (1.15 + layer * 0.04) + layer * 0.84;
+    const shell = 0.26 + layer * 0.22 + Math.pow(progress, 1.7) * 0.9;
+    const spiral = Math.sin(progress * Math.PI * 6 + layer) * 0.09;
+    const x = Math.cos(angle) * (shell + spiral) * 1.18;
+    const y = Math.sin(angle) * (shell + spiral) * 0.82;
+    const z = (layer - (FIELD_LAYERS - 1) / 2) * 0.2 + Math.sin(angle * 0.7) * 0.18;
     const offset = index * 3;
     const seedOffset = index * 4;
-    const cool = ridge ? 0.55 + track * 0.08 : 0.2;
+    const cool = 0.45 + layer / FIELD_LAYERS * 0.38;
 
     positions[offset] = x;
     positions[offset + 1] = y;
     positions[offset + 2] = z;
-    center.x += x;
-    center.y += y;
-    center.z += z;
 
     seeds[seedOffset] = progress;
-    seeds[seedOffset + 1] = ridge ? 0.75 + track * 0.06 : 0.42;
-    seeds[seedOffset + 2] = ridge ? Math.sin(track * 1.7) * 0.42 : Math.random() * 2 - 1;
-    seeds[seedOffset + 3] = ridge ? Math.cos(track * 1.3) * 0.42 : Math.random() * 2 - 1;
+    seeds[seedOffset + 1] = 0.62 + layer * 0.05;
+    seeds[seedOffset + 2] = Math.sin(layer * 1.7) * 0.5;
+    seeds[seedOffset + 3] = Math.cos(layer * 1.3) * 0.5;
 
     colors[offset] = 0.68 + cool * 0.28;
     colors[offset + 1] = 0.78 + cool * 0.18;
     colors[offset + 2] = 0.9 + cool * 0.1;
-  }
-
-  center.x /= count;
-  center.y /= count;
-  center.z /= count;
-
-  for (let index = 0; index < count; index += 1) {
-    const offset = index * 3;
-    positions[offset] -= center.x;
-    positions[offset + 1] -= center.y;
-    positions[offset + 2] -= center.z;
   }
 
   return { positions, seeds, colors };
@@ -161,28 +143,48 @@ function createLineNetwork() {
   const pairs = [];
 
   for (let index = 0; index < pairCount; index += 1) {
-    const path = index % 4;
-    const t = Math.floor(index / 4) / Math.ceil(pairCount / 4);
-    const arc = 0.012 + path * 0.002;
-    const lane = (path - 1.5) * 0.08;
+    const layer = index % FIELD_LAYERS;
+    const t = Math.floor(index / FIELD_LAYERS) / Math.ceil(pairCount / FIELD_LAYERS);
+    const arc = 0.012 + layer * 0.002;
     const first = index * 6;
     const secondT = Math.min(1, t + arc);
-    const x = (t - 0.5) * 5.4;
-    const secondX = (secondT - 0.5) * 5.4;
-    const wave = Math.sin(t * Math.PI * 7.0 + path * 0.72) * 0.11 + Math.sin(t * Math.PI * 2.0 - path * 0.35) * 0.076;
-    const secondWave = Math.sin(secondT * Math.PI * 7.0 + path * 0.72) * 0.11 + Math.sin(secondT * Math.PI * 2.0 - path * 0.35) * 0.076;
+    const angle = t * Math.PI * 2 * (1.15 + layer * 0.04) + layer * 0.84;
+    const secondAngle = secondT * Math.PI * 2 * (1.15 + layer * 0.04) + layer * 0.84;
+    const shell = 0.34 + layer * 0.22 + Math.pow(t, 1.7) * 0.86;
+    const secondShell = 0.34 + layer * 0.22 + Math.pow(secondT, 1.7) * 0.86;
+    const spiral = Math.sin(t * Math.PI * 6 + layer) * 0.08;
+    const secondSpiral = Math.sin(secondT * Math.PI * 6 + layer) * 0.08;
 
-    pairs.push(path, t, arc, lane, 0);
+    pairs.push(layer, t, arc, shell, 0);
 
-    linePositions[first] = x;
-    linePositions[first + 1] = wave + lane;
-    linePositions[first + 2] = (path - 1.5) * 0.16 + Math.sin(t * Math.PI * 3.0) * 0.08;
-    linePositions[first + 3] = secondX;
-    linePositions[first + 4] = secondWave + lane;
-    linePositions[first + 5] = (path - 1.5) * 0.16 + Math.sin(secondT * Math.PI * 3.0) * 0.08;
+    linePositions[first] = Math.cos(angle) * (shell + spiral) * 1.18;
+    linePositions[first + 1] = Math.sin(angle) * (shell + spiral) * 0.82;
+    linePositions[first + 2] = (layer - (FIELD_LAYERS - 1) / 2) * 0.2 + Math.sin(angle * 0.7) * 0.18;
+    linePositions[first + 3] = Math.cos(secondAngle) * (secondShell + secondSpiral) * 1.18;
+    linePositions[first + 4] = Math.sin(secondAngle) * (secondShell + secondSpiral) * 0.82;
+    linePositions[first + 5] = (layer - (FIELD_LAYERS - 1) / 2) * 0.2 + Math.sin(secondAngle * 0.7) * 0.18;
   }
 
   return { linePositions, pairs };
+}
+
+function createFlowPaths() {
+  return Array.from({ length: FLOW_PATH_COUNT }, (_, path) => {
+    const positions = new Float32Array(FLOW_PATH_POINTS * 3);
+
+    for (let index = 0; index < FLOW_PATH_POINTS; index += 1) {
+      const t = index / (FLOW_PATH_POINTS - 1);
+      const angle = t * Math.PI * 2 * (1.05 + path * 0.06) + path * 0.9;
+      const radius = 1.15 + path * 0.18 + Math.sin(t * Math.PI * 6 + path) * 0.05;
+      const offset = index * 3;
+
+      positions[offset] = Math.cos(angle) * radius * 1.18;
+      positions[offset + 1] = Math.sin(angle) * radius * 0.72;
+      positions[offset + 2] = Math.sin(angle * 1.6 + path) * 0.28 + (path - 2) * 0.08;
+    }
+
+    return positions;
+  });
 }
 
 export default function AudioSpaceLab() {
@@ -239,7 +241,7 @@ export default function AudioSpaceLab() {
     const count = window.innerWidth < 760 ? MOBILE_PARTICLE_COUNT : PARTICLE_COUNT;
     const { positions, seeds, colors } = createParticleField(count);
     const systemGroup = new THREE.Group();
-    systemGroup.position.set(0, 0.28, 0);
+    systemGroup.position.set(0, 0.02, 0);
     scene.add(systemGroup);
 
     const geometry = new THREE.BufferGeometry();
@@ -281,6 +283,36 @@ export default function AudioSpaceLab() {
     const structureLines = new THREE.LineSegments(lineGeometry, lineMaterial);
     systemGroup.add(structureLines);
 
+    const flowPathPositions = createFlowPaths();
+    const flowMaterial = new THREE.LineBasicMaterial({
+      color: 0xc8dcff,
+      transparent: true,
+      opacity: 0.13,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const flowLines = flowPathPositions.map((positions, index) => {
+      const flowGeometry = new THREE.BufferGeometry();
+      flowGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      const line = new THREE.Line(flowGeometry, flowMaterial);
+      line.rotation.set(0.18 + index * 0.08, index * 0.16, index * 0.72);
+      systemGroup.add(line);
+      return line;
+    });
+
+    const shellGeometry = new THREE.IcosahedronGeometry(1.05, 2);
+    const shellMaterial = new THREE.MeshBasicMaterial({
+      color: 0x9fc9ff,
+      transparent: true,
+      opacity: 0.035,
+      wireframe: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const shell = new THREE.Mesh(shellGeometry, shellMaterial);
+    shell.scale.set(1.26, 0.86, 0.62);
+    systemGroup.add(shell);
+
     const planeMaterials = [0x7bb9ff, 0xb7c5ff].map(
       (color) =>
         new THREE.MeshBasicMaterial({
@@ -293,7 +325,7 @@ export default function AudioSpaceLab() {
         })
     );
     const planes = planeMaterials.map((planeMaterial, index) => {
-      const plane = new THREE.Mesh(new THREE.PlaneGeometry(3.15, 0.92, 1, 1), planeMaterial);
+      const plane = new THREE.Mesh(new THREE.CircleGeometry(1.38 + index * 0.24, 128), planeMaterial);
       plane.rotation.set(Math.PI / 2.8 + index * 0.34, index ? -0.42 : 0.32, index * 0.75);
       plane.position.z = index ? -0.55 : 0.28;
       systemGroup.add(plane);
@@ -345,7 +377,7 @@ export default function AudioSpaceLab() {
       const bassPulse = metrics.bass * 1.25;
       const loudness = metrics.volume;
       const stereoWidth = metrics.stereoWidth;
-      const breath = 1 - metrics.bass * 0.11 + loudness * 0.08 + Math.sin(seconds * 0.8) * 0.018;
+      const breath = 1 + metrics.bass * 0.28 + loudness * 0.16 + Math.sin(seconds * 0.8) * 0.018;
       const lineAttribute = lineGeometry.attributes.position;
       const liveLinePositions = lineAttribute.array;
 
@@ -356,51 +388,82 @@ export default function AudioSpaceLab() {
       material.uniforms.uVolume.value = loudness;
       material.uniforms.uStereoWidth.value = stereoWidth;
       systemGroup.scale.setScalar(breath);
-      systemGroup.rotation.y += 0.001 + metrics.mid * 0.008;
-      systemGroup.rotation.x = Math.sin(seconds * 0.16) * 0.08 + stereoWidth * 0.08;
-      points.rotation.y += 0.0008 + metrics.mid * 0.006;
-      points.rotation.x = Math.sin(seconds * 0.18) * 0.08 + stereoWidth * 0.08;
+      systemGroup.rotation.y += 0.0008 + metrics.mid * 0.006;
+      systemGroup.rotation.x = Math.sin(seconds * 0.16) * 0.06 + stereoWidth * 0.06;
+      points.rotation.y += 0.0006 + metrics.mid * 0.004;
+      points.rotation.x = Math.sin(seconds * 0.18) * 0.05 + stereoWidth * 0.05;
 
       for (let index = 0; index < pairs.length; index += 1) {
         const meta = index * 5;
-        const path = pairs[meta];
+        const layer = pairs[meta];
         const t = pairs[meta + 1];
         const arc = pairs[meta + 2] + metrics.mid * 0.012;
-        const lane = pairs[meta + 3];
         const target = index * 6;
-        const drift = seconds * (0.012 + metrics.mid * 0.026);
+        const drift = seconds * (0.018 + metrics.mid * 0.034);
         const liveT = (t + drift) % 1;
         const secondT = Math.min(1, liveT + arc);
-        const bassLift = 1 + metrics.bass * 1.4 + loudness * 0.35;
-        const x = (liveT - 0.5) * 5.4 + stereoWidth * 0.18;
-        const secondX = (secondT - 0.5) * 5.4 + stereoWidth * 0.18;
-        const wave = (
-          Math.sin(liveT * Math.PI * 7.0 + path * 0.72 + seconds * 0.42) * 0.11 +
-          Math.sin(liveT * Math.PI * 2.0 - path * 0.35 + seconds * 0.18) * 0.076
-        ) * bassLift;
-        const secondWave = (
-          Math.sin(secondT * Math.PI * 7.0 + path * 0.72 + seconds * 0.42) * 0.11 +
-          Math.sin(secondT * Math.PI * 2.0 - path * 0.35 + seconds * 0.18) * 0.076
-        ) * bassLift;
+        const angle = liveT * Math.PI * 2 * (1.15 + layer * 0.04) + layer * 0.84 + metrics.mid * 0.26;
+        const secondAngle = secondT * Math.PI * 2 * (1.15 + layer * 0.04) + layer * 0.84 + metrics.mid * 0.26;
+        const shell = (0.34 + layer * 0.22 + Math.pow(liveT, 1.7) * 0.86) * (1 + metrics.bass * 0.34 + loudness * 0.12);
+        const secondShell = (0.34 + layer * 0.22 + Math.pow(secondT, 1.7) * 0.86) * (1 + metrics.bass * 0.34 + loudness * 0.12);
+        const matter = Math.sin(liveT * Math.PI * 6 + layer + seconds * 0.7) * (0.08 + metrics.mid * 0.08);
+        const secondMatter = Math.sin(secondT * Math.PI * 6 + layer + seconds * 0.7) * (0.08 + metrics.mid * 0.08);
+        const layerZ = (layer - (FIELD_LAYERS - 1) / 2) * 0.2;
 
-        liveLinePositions[target] = x;
-        liveLinePositions[target + 1] = wave + lane + metrics.mid * Math.sin(liveT * Math.PI * 4.0) * 0.08;
-        liveLinePositions[target + 2] = (path - 1.5) * 0.16 + Math.sin(liveT * Math.PI * 3.0) * 0.08;
-        liveLinePositions[target + 3] = secondX;
-        liveLinePositions[target + 4] = secondWave + lane + metrics.mid * Math.sin(secondT * Math.PI * 4.0) * 0.08;
-        liveLinePositions[target + 5] = (path - 1.5) * 0.16 + Math.sin(secondT * Math.PI * 3.0) * 0.08;
+        liveLinePositions[target] = Math.cos(angle) * (shell + matter) * 1.18 + stereoWidth * 0.16;
+        liveLinePositions[target + 1] = Math.sin(angle) * (shell + matter) * 0.82;
+        liveLinePositions[target + 2] = layerZ + Math.sin(angle * 0.7 + seconds * 0.2) * 0.18;
+        liveLinePositions[target + 3] = Math.cos(secondAngle) * (secondShell + secondMatter) * 1.18 + stereoWidth * 0.16;
+        liveLinePositions[target + 4] = Math.sin(secondAngle) * (secondShell + secondMatter) * 0.82;
+        liveLinePositions[target + 5] = layerZ + Math.sin(secondAngle * 0.7 + seconds * 0.2) * 0.18;
       }
 
       lineAttribute.needsUpdate = true;
       lineMaterial.opacity = 0.16 + metrics.mid * 0.22 + loudness * 0.08;
-      structureLines.rotation.y = Math.sin(seconds * 0.22) * 0.08 + metrics.mid * 0.18;
+      structureLines.rotation.y = Math.sin(seconds * 0.22) * 0.08 + metrics.mid * 0.22;
+
+      flowLines.forEach((line, path) => {
+        const positionAttribute = line.geometry.attributes.position;
+        const livePositions = positionAttribute.array;
+        const pathLift = path - (FLOW_PATH_COUNT - 1) / 2;
+        const radialHeat = 1 + metrics.bass * 0.52 + loudness * 0.16;
+        const bend = 0.12 + metrics.mid * 0.26;
+
+        for (let index = 0; index < FLOW_PATH_POINTS; index += 1) {
+          const t = index / (FLOW_PATH_POINTS - 1);
+          const angle = t * Math.PI * 2 * (1.05 + path * 0.06) + path * 0.9 + seconds * (0.08 + metrics.mid * 0.12);
+          const matter =
+            Math.sin(t * Math.PI * 5 + seconds * 0.48 + path) * bend +
+            Math.sin(t * Math.PI * 11 - seconds * 0.27 + path * 1.4) * metrics.treble * 0.045;
+          const radius = (1.06 + path * 0.17 + matter) * radialHeat;
+          const offset = index * 3;
+
+          livePositions[offset] = Math.cos(angle) * radius * 1.2 + stereoWidth * 0.12;
+          livePositions[offset + 1] = Math.sin(angle) * radius * 0.74;
+          livePositions[offset + 2] = Math.sin(angle * 1.55 + path) * (0.22 + metrics.mid * 0.18) + pathLift * 0.08;
+        }
+
+        positionAttribute.needsUpdate = true;
+        line.rotation.y += 0.0008 + metrics.mid * 0.003;
+        line.rotation.x = Math.sin(seconds * 0.18 + path) * 0.045 + stereoWidth * 0.04;
+      });
+      flowMaterial.opacity = 0.07 + metrics.mid * 0.16 + metrics.bass * 0.05;
+
+      shell.rotation.x += 0.0006 + metrics.mid * 0.002;
+      shell.rotation.y -= 0.0009 + metrics.mid * 0.004;
+      shell.scale.set(
+        1.18 + metrics.bass * 0.42 + loudness * 0.12,
+        0.82 + metrics.bass * 0.28 + loudness * 0.08,
+        0.58 + metrics.bass * 0.22 + Math.abs(stereoWidth) * 0.1
+      );
+      shellMaterial.opacity = 0.018 + metrics.bass * 0.04 + metrics.mid * 0.025;
 
       planes.forEach((plane, index) => {
         const phase = seconds * 0.75 + index * 1.7;
-        plane.scale.set(1 + metrics.bass * 0.32, 0.58 + metrics.bass * 0.18, 1);
-        plane.rotation.z += 0.0008 + metrics.mid * 0.004 * (index ? -1 : 1);
+        plane.scale.set(0.82 + metrics.bass * 0.45, 0.82 + metrics.bass * 0.24, 1);
+        plane.rotation.z += 0.0012 + metrics.mid * 0.006 * (index ? -1 : 1);
         plane.position.y = Math.sin(phase) * 0.055;
-        plane.material.opacity = 0.012 + metrics.bass * 0.1 + loudness * 0.025;
+        plane.material.opacity = 0.012 + metrics.bass * 0.08 + loudness * 0.025;
       });
 
       halo.rotation.z -= 0.0008 + metrics.mid * 0.004;
@@ -409,7 +472,7 @@ export default function AudioSpaceLab() {
 
       waveRings.forEach((ring, index) => {
         const cycle = (seconds * (0.16 + metrics.treble * 0.74) + index * 0.2) % 1;
-        const waveScale = 0.72 + cycle * (2.25 + metrics.treble * 1.65);
+        const waveScale = 0.42 + cycle * (2.65 + metrics.treble * 1.65 + metrics.bass * 0.6);
         ring.scale.setScalar(waveScale);
         ring.rotation.z += 0.001 + metrics.mid * 0.006;
         ring.material.opacity = Math.max(0, (1 - cycle) * (0.025 + metrics.treble * 0.3 + metrics.mid * 0.05));
@@ -432,6 +495,12 @@ export default function AudioSpaceLab() {
       material.dispose();
       lineGeometry.dispose();
       lineMaterial.dispose();
+      flowLines.forEach((line) => {
+        line.geometry.dispose();
+      });
+      flowMaterial.dispose();
+      shellGeometry.dispose();
+      shellMaterial.dispose();
       planes.forEach((plane) => {
         plane.geometry.dispose();
         plane.material.dispose();
