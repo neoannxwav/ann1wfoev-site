@@ -4,12 +4,12 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
-const PARTICLE_COUNT = 760;
-const MOBILE_PARTICLE_COUNT = 520;
+const PARTICLE_COUNT = 1280;
+const MOBILE_PARTICLE_COUNT = 760;
 const FIELD_LAYERS = 6;
-const LINE_SEGMENT_COUNT = 520;
-const FLOW_PATH_COUNT = 9;
-const FLOW_PATH_POINTS = 150;
+const LINE_SEGMENT_COUNT = 760;
+const FLOW_PATH_COUNT = 18;
+const FLOW_PATH_POINTS = 170;
 const FFT_SIZE = 2048;
 const vertexShader = `
   uniform float uTime;
@@ -110,12 +110,14 @@ function createParticleField(count) {
     const layer = index % FIELD_LAYERS;
     const ringIndex = Math.floor(index / FIELD_LAYERS);
     const progress = ringIndex / Math.ceil(count / FIELD_LAYERS);
-    const angle = progress * Math.PI * 2 * (1.15 + layer * 0.04) + layer * 0.84;
-    const shell = 0.26 + layer * 0.22 + Math.pow(progress, 1.7) * 0.9;
-    const spiral = Math.sin(progress * Math.PI * 6 + layer) * 0.09;
-    const x = Math.cos(angle) * (shell + spiral) * 1.18;
-    const y = Math.sin(angle) * (shell + spiral) * 0.82;
-    const z = (layer - (FIELD_LAYERS - 1) / 2) * 0.2 + Math.sin(angle * 0.7) * 0.18;
+    const lane = index % 3;
+    const angle = progress * Math.PI * 5.4 + layer * 0.78;
+    const ribbon = Math.sin(progress * Math.PI * 4.6 + layer) * 0.34;
+    const radius = 0.34 + Math.pow(progress, 1.22) * (2.35 + layer * 0.08);
+    const corePull = Math.exp(-progress * 4.2);
+    const x = Math.cos(angle) * radius * 1.12 + progress * 1.15 - 0.75 + ribbon * 0.16;
+    const y = Math.sin(angle) * radius * 0.52 + Math.sin(progress * Math.PI * 8 + layer) * 0.18 - corePull * 0.22;
+    const z = (layer - (FIELD_LAYERS - 1) / 2) * 0.12 + Math.sin(angle * 1.25) * (0.18 + lane * 0.035);
     const offset = index * 3;
     const seedOffset = index * 4;
     const cool = 0.45 + layer / FIELD_LAYERS * 0.38;
@@ -143,26 +145,26 @@ function createLineNetwork() {
   const pairs = [];
 
   for (let index = 0; index < pairCount; index += 1) {
-    const layer = index % FIELD_LAYERS;
-    const t = Math.floor(index / FIELD_LAYERS) / Math.ceil(pairCount / FIELD_LAYERS);
-    const arc = 0.012 + layer * 0.002;
+    const path = index % FLOW_PATH_COUNT;
+    const t = Math.floor(index / FLOW_PATH_COUNT) / Math.ceil(pairCount / FLOW_PATH_COUNT);
+    const arc = 0.008 + (path % 4) * 0.002;
     const first = index * 6;
     const secondT = Math.min(1, t + arc);
-    const angle = t * Math.PI * 2 * (1.15 + layer * 0.04) + layer * 0.84;
-    const secondAngle = secondT * Math.PI * 2 * (1.15 + layer * 0.04) + layer * 0.84;
-    const shell = 0.34 + layer * 0.22 + Math.pow(t, 1.7) * 0.86;
-    const secondShell = 0.34 + layer * 0.22 + Math.pow(secondT, 1.7) * 0.86;
-    const spiral = Math.sin(t * Math.PI * 6 + layer) * 0.08;
-    const secondSpiral = Math.sin(secondT * Math.PI * 6 + layer) * 0.08;
+    const angle = path * 0.36 + t * Math.PI * (2.1 + path * 0.025);
+    const secondAngle = path * 0.36 + secondT * Math.PI * (2.1 + path * 0.025);
+    const shell = 0.22 + Math.pow(t, 1.2) * (2.65 + (path % 5) * 0.12);
+    const secondShell = 0.22 + Math.pow(secondT, 1.2) * (2.65 + (path % 5) * 0.12);
+    const curl = Math.sin(t * Math.PI * 7 + path) * 0.18 * t;
+    const secondCurl = Math.sin(secondT * Math.PI * 7 + path) * 0.18 * secondT;
 
-    pairs.push(layer, t, arc, shell, 0);
+    pairs.push(path, t, arc, shell, 0);
 
-    linePositions[first] = Math.cos(angle) * (shell + spiral) * 1.18;
-    linePositions[first + 1] = Math.sin(angle) * (shell + spiral) * 0.82;
-    linePositions[first + 2] = (layer - (FIELD_LAYERS - 1) / 2) * 0.2 + Math.sin(angle * 0.7) * 0.18;
-    linePositions[first + 3] = Math.cos(secondAngle) * (secondShell + secondSpiral) * 1.18;
-    linePositions[first + 4] = Math.sin(secondAngle) * (secondShell + secondSpiral) * 0.82;
-    linePositions[first + 5] = (layer - (FIELD_LAYERS - 1) / 2) * 0.2 + Math.sin(secondAngle * 0.7) * 0.18;
+    linePositions[first] = Math.cos(angle) * (shell + curl) * 1.14 + t * 0.72 - 0.48;
+    linePositions[first + 1] = Math.sin(angle) * (shell + curl) * 0.52;
+    linePositions[first + 2] = ((path % FIELD_LAYERS) - 2.5) * 0.11 + Math.sin(angle * 1.4) * 0.18;
+    linePositions[first + 3] = Math.cos(secondAngle) * (secondShell + secondCurl) * 1.14 + secondT * 0.72 - 0.48;
+    linePositions[first + 4] = Math.sin(secondAngle) * (secondShell + secondCurl) * 0.52;
+    linePositions[first + 5] = ((path % FIELD_LAYERS) - 2.5) * 0.11 + Math.sin(secondAngle * 1.4) * 0.18;
   }
 
   return { linePositions, pairs };
@@ -174,14 +176,14 @@ function createFlowPaths() {
 
     for (let index = 0; index < FLOW_PATH_POINTS; index += 1) {
       const t = index / (FLOW_PATH_POINTS - 1);
-      const angle = path * 0.7 + t * Math.PI * (1.45 + path * 0.08);
-      const radius = 0.28 + Math.pow(t, 1.35) * (1.75 + path * 0.04);
-      const vapor = Math.sin(t * Math.PI * 5 + path) * 0.08 * t;
+      const angle = path * 0.36 + t * Math.PI * (2.1 + path * 0.025);
+      const radius = 0.22 + Math.pow(t, 1.18) * (2.55 + (path % 5) * 0.14);
+      const vapor = Math.sin(t * Math.PI * 7 + path) * 0.18 * t;
       const offset = index * 3;
 
-      positions[offset] = Math.cos(angle) * (radius + vapor) * 1.08;
-      positions[offset + 1] = Math.sin(angle) * (radius + vapor) * 0.74;
-      positions[offset + 2] = Math.sin(angle * 1.45 + path) * 0.22 + (path - 4) * 0.055;
+      positions[offset] = Math.cos(angle) * (radius + vapor) * 1.14 + t * 0.78 - 0.48;
+      positions[offset + 1] = Math.sin(angle) * (radius + vapor) * 0.5;
+      positions[offset + 2] = Math.sin(angle * 1.35 + path) * 0.18 + (path - (FLOW_PATH_COUNT - 1) / 2) * 0.025;
     }
 
     return positions;
@@ -203,6 +205,7 @@ export default function AudioSpaceLab() {
   const frequencyDataRef = useRef(null);
   const leftDataRef = useRef(null);
   const rightDataRef = useRef(null);
+  const metricsRenderRef = useRef(0);
   const metricsRef = useRef({
     bass: 0,
     mid: 0,
@@ -216,6 +219,7 @@ export default function AudioSpaceLab() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [fileName, setFileName] = useState("");
   const [message, setMessage] = useState("Drop .mp3 / .wav / .m4a into the field");
+  const [visualMetrics, setVisualMetrics] = useState({ bass: 0, mid: 0, treble: 0 });
 
   useEffect(() => {
     if (!mountRef.current) {
@@ -314,6 +318,18 @@ export default function AudioSpaceLab() {
     shell.scale.set(1.26, 0.86, 0.62);
     systemGroup.add(shell);
 
+    const coreGeometry = new THREE.CircleGeometry(0.32, 96);
+    const coreMaterial = new THREE.MeshBasicMaterial({
+      color: 0x020204,
+      transparent: false,
+      depthTest: false,
+      depthWrite: false,
+    });
+    const core = new THREE.Mesh(coreGeometry, coreMaterial);
+    core.position.set(0.1, -0.02, 0.72);
+    core.renderOrder = 20;
+    systemGroup.add(core);
+
     const planeMaterials = [0x7bb9ff, 0xb7c5ff].map(
       (color) =>
         new THREE.MeshBasicMaterial({
@@ -388,7 +404,7 @@ export default function AudioSpaceLab() {
       material.uniforms.uTreble.value = metrics.treble;
       material.uniforms.uVolume.value = loudness;
       material.uniforms.uStereoWidth.value = stereoWidth;
-      const centerCorrection = window.innerWidth >= 760 ? -0.18 : 0;
+      const centerCorrection = window.innerWidth >= 760 ? 0.42 : 0;
       systemGroup.position.x += (centerCorrection + stereoWidth * 0.08 - systemGroup.position.x) * 0.035;
       systemGroup.position.y += (0.02 + Math.sin(seconds * 0.22) * 0.025 - systemGroup.position.y) * 0.035;
       systemGroup.scale.setScalar(breath);
@@ -399,32 +415,32 @@ export default function AudioSpaceLab() {
 
       for (let index = 0; index < pairs.length; index += 1) {
         const meta = index * 5;
-        const layer = pairs[meta];
+        const path = pairs[meta];
         const t = pairs[meta + 1];
         const arc = pairs[meta + 2] + metrics.mid * 0.012;
         const target = index * 6;
-        const drift = seconds * (0.018 + metrics.mid * 0.034);
+        const drift = seconds * (0.026 + metrics.mid * 0.05 + loudness * 0.018);
         const liveT = (t + drift) % 1;
         const secondT = Math.min(1, liveT + arc);
-        const angle = liveT * Math.PI * 2 * (1.15 + layer * 0.04) + layer * 0.84 + metrics.mid * 0.26;
-        const secondAngle = secondT * Math.PI * 2 * (1.15 + layer * 0.04) + layer * 0.84 + metrics.mid * 0.26;
-        const shell = (0.34 + layer * 0.22 + Math.pow(liveT, 1.7) * 0.86) * (1 + metrics.bass * 0.34 + loudness * 0.12);
-        const secondShell = (0.34 + layer * 0.22 + Math.pow(secondT, 1.7) * 0.86) * (1 + metrics.bass * 0.34 + loudness * 0.12);
-        const matter = Math.sin(liveT * Math.PI * 6 + layer + seconds * 0.7) * (0.08 + metrics.mid * 0.08);
-        const secondMatter = Math.sin(secondT * Math.PI * 6 + layer + seconds * 0.7) * (0.08 + metrics.mid * 0.08);
-        const layerZ = (layer - (FIELD_LAYERS - 1) / 2) * 0.2;
+        const angle = path * 0.36 + liveT * Math.PI * (2.1 + path * 0.025) + metrics.mid * 0.42;
+        const secondAngle = path * 0.36 + secondT * Math.PI * (2.1 + path * 0.025) + metrics.mid * 0.42;
+        const shell = (0.22 + Math.pow(liveT, 1.18) * (2.55 + (path % 5) * 0.14)) * (1 + metrics.bass * 0.34 + loudness * 0.18);
+        const secondShell = (0.22 + Math.pow(secondT, 1.18) * (2.55 + (path % 5) * 0.14)) * (1 + metrics.bass * 0.34 + loudness * 0.18);
+        const matter = Math.sin(liveT * Math.PI * 7 + path + seconds * 0.86) * (0.16 + metrics.mid * 0.22 + metrics.treble * 0.08) * liveT;
+        const secondMatter = Math.sin(secondT * Math.PI * 7 + path + seconds * 0.86) * (0.16 + metrics.mid * 0.22 + metrics.treble * 0.08) * secondT;
+        const layerZ = ((path % FIELD_LAYERS) - 2.5) * 0.11;
 
-        liveLinePositions[target] = Math.cos(angle) * (shell + matter) * 1.18 + stereoWidth * 0.16;
-        liveLinePositions[target + 1] = Math.sin(angle) * (shell + matter) * 0.82;
-        liveLinePositions[target + 2] = layerZ + Math.sin(angle * 0.7 + seconds * 0.2) * 0.18;
-        liveLinePositions[target + 3] = Math.cos(secondAngle) * (secondShell + secondMatter) * 1.18 + stereoWidth * 0.16;
-        liveLinePositions[target + 4] = Math.sin(secondAngle) * (secondShell + secondMatter) * 0.82;
-        liveLinePositions[target + 5] = layerZ + Math.sin(secondAngle * 0.7 + seconds * 0.2) * 0.18;
+        liveLinePositions[target] = Math.cos(angle) * (shell + matter) * 1.14 + liveT * 0.78 - 0.48 + stereoWidth * 0.12;
+        liveLinePositions[target + 1] = Math.sin(angle) * (shell + matter) * 0.5;
+        liveLinePositions[target + 2] = layerZ + Math.sin(angle * 1.35 + seconds * 0.24) * 0.18;
+        liveLinePositions[target + 3] = Math.cos(secondAngle) * (secondShell + secondMatter) * 1.14 + secondT * 0.78 - 0.48 + stereoWidth * 0.12;
+        liveLinePositions[target + 4] = Math.sin(secondAngle) * (secondShell + secondMatter) * 0.5;
+        liveLinePositions[target + 5] = layerZ + Math.sin(secondAngle * 1.35 + seconds * 0.24) * 0.18;
       }
 
       lineAttribute.needsUpdate = true;
-      lineMaterial.opacity = 0.16 + metrics.mid * 0.22 + loudness * 0.08;
-      structureLines.rotation.y = Math.sin(seconds * 0.22) * 0.08 + metrics.mid * 0.22;
+      lineMaterial.opacity = 0.08 + metrics.mid * 0.2 + loudness * 0.1;
+      structureLines.rotation.y = Math.sin(seconds * 0.18) * 0.05 + metrics.mid * 0.18;
 
       flowLines.forEach((line, path) => {
         const positionAttribute = line.geometry.attributes.position;
@@ -438,19 +454,19 @@ export default function AudioSpaceLab() {
           const t = index / (FLOW_PATH_POINTS - 1);
           const tail = Math.pow(t, 1.28);
           const angle =
-            path * 0.7 +
-            tail * Math.PI * (1.55 + path * 0.08) +
-            seconds * (0.14 + metrics.mid * 0.22) +
+            path * 0.36 +
+            tail * Math.PI * (2.1 + path * 0.025) +
+            seconds * (0.18 + metrics.mid * 0.24 + loudness * 0.08) +
             Math.sin(seconds * 0.34 + path) * 0.18;
           const matter =
-            Math.sin(t * Math.PI * 5 + seconds * 0.72 + path) * bend * tail +
-            Math.sin(t * Math.PI * 13 - seconds * 0.41 + path * 1.4) * evaporation * tail;
-          const radius = (0.22 + tail * (1.55 + path * 0.035) + matter) * radialHeat;
+            Math.sin(t * Math.PI * 7 + seconds * 0.86 + path) * bend * tail +
+            Math.sin(t * Math.PI * 15 - seconds * 0.48 + path * 1.4) * evaporation * tail;
+          const radius = (0.2 + tail * (2.48 + (path % 5) * 0.14) + matter) * radialHeat;
           const lift = Math.sin(seconds * 0.52 + path + t * 8) * (0.06 + metrics.mid * 0.08) * tail;
           const offset = index * 3;
 
-          livePositions[offset] = Math.cos(angle) * radius * 1.06 + stereoWidth * 0.1;
-          livePositions[offset + 1] = Math.sin(angle) * radius * 0.72 + lift;
+          livePositions[offset] = Math.cos(angle) * radius * 1.13 + tail * 0.78 - 0.48 + stereoWidth * 0.1;
+          livePositions[offset + 1] = Math.sin(angle) * radius * 0.5 + lift;
           livePositions[offset + 2] = Math.sin(angle * 1.35 + path + seconds * 0.18) * (0.18 + metrics.mid * 0.18) + pathLift * 0.055;
         }
 
@@ -469,6 +485,7 @@ export default function AudioSpaceLab() {
         0.58 + metrics.bass * 0.22 + Math.abs(stereoWidth) * 0.1
       );
       shellMaterial.opacity = 0.018 + metrics.bass * 0.04 + metrics.mid * 0.025;
+      core.scale.setScalar(0.86 + metrics.bass * 0.18 + loudness * 0.08);
 
       planes.forEach((plane, index) => {
         const phase = seconds * 0.75 + index * 1.7;
@@ -513,6 +530,8 @@ export default function AudioSpaceLab() {
       flowMaterial.dispose();
       shellGeometry.dispose();
       shellMaterial.dispose();
+      coreGeometry.dispose();
+      coreMaterial.dispose();
       planes.forEach((plane) => {
         plane.geometry.dispose();
         plane.material.dispose();
@@ -560,6 +579,16 @@ export default function AudioSpaceLab() {
         metricsRef.current.treble += (treble - metricsRef.current.treble) * 0.22;
         metricsRef.current.volume += (volume - metricsRef.current.volume) * 0.16;
         metricsRef.current.stereoWidth += (stereoWidth - metricsRef.current.stereoWidth) * 0.12;
+
+        const now = performance.now();
+        if (now - metricsRenderRef.current > 140) {
+          metricsRenderRef.current = now;
+          setVisualMetrics({
+            bass: metricsRef.current.bass,
+            mid: metricsRef.current.mid,
+            treble: metricsRef.current.treble,
+          });
+        }
       } else {
         metricsRef.current.bass *= 0.94;
         metricsRef.current.mid *= 0.95;
@@ -716,8 +745,9 @@ export default function AudioSpaceLab() {
       onDragLeave={() => setIsDragging(false)}
       onDrop={handleDrop}
     >
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_68%_48%,rgba(56,132,210,0.2),transparent_32%),radial-gradient(circle_at_12%_40%,rgba(100,118,180,0.08),transparent_30%),linear-gradient(110deg,rgba(255,255,255,0.03),transparent_18%,transparent_74%,rgba(91,255,236,0.04))]" />
-      <div className="pointer-events-none fixed bottom-0 left-0 top-0 w-[42vw] opacity-[0.055] [background-image:linear-gradient(rgba(255,255,255,0.28)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.28)_1px,transparent_1px)] [background-size:48px_48px]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_70%_48%,rgba(93,134,190,0.12),transparent_34%),radial-gradient(circle_at_18%_38%,rgba(255,255,255,0.035),transparent_24%),linear-gradient(90deg,rgba(255,255,255,0.035),transparent_24%,transparent_82%,rgba(130,179,255,0.04))]" />
+      <div className="pointer-events-none fixed inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(255,255,255,0.55)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.55)_1px,transparent_1px)] [background-size:130px_130px]" />
+      <div className="pointer-events-none fixed inset-x-10 bottom-8 top-16 border-y border-white/[0.035]" />
 
       <div className="relative z-10 min-h-screen px-5 py-6 md:px-12 md:py-9">
         <header className="relative z-20 flex items-center justify-between text-[0.62rem] tracking-[0.34em] text-white/62">
@@ -728,23 +758,46 @@ export default function AudioSpaceLab() {
         </header>
 
         <section className="relative min-h-[calc(100vh-5rem)]">
-          <div className="relative z-20 max-w-[16rem] pt-8 md:pt-10">
-            <h1 className="mb-5 text-[1.35rem] font-light leading-[1.08] tracking-[0.48em] text-white/72 md:text-[2.15rem]">
+          <div className="relative z-20 max-w-[18rem] pt-8 md:pt-24">
+            <h1 className="mb-10 text-[1.5rem] font-light leading-[1.62] tracking-[0.54em] text-white/88 md:text-[2.6rem]">
               <span className="block">1W4V</span>
               <span className="block tracking-[0.42em]">AUDIO</span>
               <span className="block text-[0.72em] tracking-[0.48em]">SPACE LAB</span>
             </h1>
-            <p className="max-w-xs text-[0.54rem] leading-5 tracking-[0.26em] text-white/28 md:max-w-sm">
+            <span className="mb-7 block h-px w-8 bg-white/48" />
+            <p className="max-w-xs text-[0.54rem] leading-5 tracking-[0.26em] text-white/38 md:max-w-sm">
               DRAG AUDIO INTO SPACE
+            </p>
+            <p className="mt-7 max-w-[11rem] text-[0.5rem] uppercase leading-6 tracking-[0.34em] text-white/22">
+              LET SOUND FORM ITS OWN GEOMETRY
             </p>
             <p className="mt-3 max-w-sm text-xs leading-6 tracking-[0.12em] text-white/0 transition hover:text-white/36">
               拖入音频，让声音生成它自己的空间形态。
             </p>
           </div>
 
+          <div className="pointer-events-none absolute left-[24rem] top-[48%] z-20 hidden w-32 -translate-y-1/2 text-[0.46rem] tracking-[0.34em] text-white/34 md:block">
+            <p className="mb-5 text-white/46">{isPlaying ? "SIGNAL ACTIVE" : "IDLE DRIFT"}</p>
+            {[
+              ["BASS", visualMetrics.bass],
+              ["MID", visualMetrics.mid],
+              ["TREBLE", visualMetrics.treble],
+            ].map(([label, value]) => (
+              <div key={label} className="mb-4">
+                <div className="mb-2 flex justify-between">
+                  <span>{label}</span>
+                  <span className="tracking-[0.18em]">{value.toFixed(2)}</span>
+                </div>
+                <span className="block h-px bg-white/10">
+                  <span className="block h-px bg-white/70" style={{ width: `${Math.max(8, value * 100)}%` }} />
+                </span>
+              </div>
+            ))}
+          </div>
+
           <div className="absolute inset-x-0 bottom-[8vh] top-[2vh] z-10 overflow-hidden md:bottom-[6vh] md:top-[-2vh]">
             <div ref={mountRef} className="absolute inset-0" />
-            <div className="pointer-events-none absolute left-1/2 top-[21%] -translate-x-1/2 text-[0.48rem] tracking-[0.34em] text-white/14">
+            <div className="pointer-events-none absolute left-[54%] top-[21%] -translate-x-1/2 text-[0.48rem] tracking-[0.34em] text-white/12 md:hidden">
               {isPlaying ? "SIGNAL ACTIVE" : "IDLE DRIFT"}
             </div>
           </div>
