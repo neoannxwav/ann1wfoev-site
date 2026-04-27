@@ -10,6 +10,7 @@ const FIELD_LAYERS = 6;
 const LINE_SEGMENT_COUNT = 760;
 const FLOW_PATH_COUNT = 18;
 const FLOW_PATH_POINTS = 170;
+const SURFACE_COUNT = 4;
 const FFT_SIZE = 2048;
 const vertexShader = `
   uniform float uTime;
@@ -190,6 +191,26 @@ function createFlowPaths() {
   });
 }
 
+function createSurfaceGeometry(surfaceIndex) {
+  const widthSegments = 34;
+  const heightSegments = 10;
+  const geometry = new THREE.PlaneGeometry(2.9 + surfaceIndex * 0.36, 1.02 + surfaceIndex * 0.14, widthSegments, heightSegments);
+  const position = geometry.attributes.position;
+
+  for (let index = 0; index < position.count; index += 1) {
+    const x = position.getX(index);
+    const y = position.getY(index);
+    const u = x / (2.9 + surfaceIndex * 0.36);
+    const v = y / (1.02 + surfaceIndex * 0.14);
+    const fold = Math.sin(u * Math.PI * 3 + surfaceIndex) * 0.18 + Math.cos(v * Math.PI * 4 - surfaceIndex) * 0.1;
+
+    position.setZ(index, fold * (0.55 + Math.abs(u)));
+  }
+
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
 export default function AudioSpaceLab() {
   const mountRef = useRef(null);
   const inputRef = useRef(null);
@@ -349,6 +370,26 @@ export default function AudioSpaceLab() {
       return plane;
     });
 
+    const surfaceMaterials = Array.from({ length: SURFACE_COUNT }, (_, index) =>
+      new THREE.MeshBasicMaterial({
+        color: index % 2 ? 0xb8c9ff : 0x7faeff,
+        transparent: true,
+        opacity: 0.035,
+        wireframe: true,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      })
+    );
+    const surfaces = surfaceMaterials.map((surfaceMaterial, index) => {
+      const surface = new THREE.Mesh(createSurfaceGeometry(index), surfaceMaterial);
+      surface.position.set(0.42 + index * 0.18, -0.1 + index * 0.04, -0.18 - index * 0.16);
+      surface.rotation.set(0.82 + index * 0.18, -0.36 + index * 0.16, -0.44 + index * 0.28);
+      surface.scale.set(1 + index * 0.18, 0.78 + index * 0.08, 1);
+      systemGroup.add(surface);
+      return surface;
+    });
+
     const haloGeometry = new THREE.RingGeometry(1.7, 1.712, 192);
     const haloMaterial = new THREE.MeshBasicMaterial({
       color: 0x87bfff,
@@ -404,9 +445,9 @@ export default function AudioSpaceLab() {
       material.uniforms.uTreble.value = metrics.treble;
       material.uniforms.uVolume.value = loudness;
       material.uniforms.uStereoWidth.value = stereoWidth;
-      const centerCorrection = window.innerWidth >= 760 ? 0.42 : 0;
+      const centerCorrection = window.innerWidth >= 760 ? 0.26 : 0;
       systemGroup.position.x += (centerCorrection + stereoWidth * 0.08 - systemGroup.position.x) * 0.035;
-      systemGroup.position.y += (0.22 + Math.sin(seconds * 0.22) * 0.025 - systemGroup.position.y) * 0.035;
+      systemGroup.position.y += (0.12 + Math.sin(seconds * 0.22) * 0.025 - systemGroup.position.y) * 0.035;
       systemGroup.scale.setScalar(breath);
       systemGroup.rotation.y += 0.0012 + metrics.mid * 0.008;
       systemGroup.rotation.x = Math.sin(seconds * 0.16) * 0.06 + stereoWidth * 0.06;
@@ -495,6 +536,20 @@ export default function AudioSpaceLab() {
         plane.material.opacity = 0.012 + metrics.bass * 0.08 + loudness * 0.025;
       });
 
+      surfaces.forEach((surface, index) => {
+        const phase = seconds * (0.22 + index * 0.03) + index;
+        surface.rotation.z += 0.0009 + metrics.mid * 0.004;
+        surface.rotation.y = -0.36 + index * 0.16 + Math.sin(phase) * (0.05 + metrics.mid * 0.08);
+        surface.position.x = 0.42 + index * 0.18 + Math.sin(phase * 0.7) * 0.08;
+        surface.position.y = -0.08 + index * 0.04 + Math.cos(phase * 0.9) * 0.06;
+        surface.scale.set(
+          1 + index * 0.18 + metrics.bass * 0.28,
+          0.76 + index * 0.08 + metrics.bass * 0.14,
+          1
+        );
+        surface.material.opacity = 0.012 + metrics.bass * 0.035 + metrics.mid * 0.035 + loudness * 0.025;
+      });
+
       halo.rotation.z -= 0.0008 + metrics.mid * 0.004;
       halo.scale.setScalar(1 - bassPulse * 0.08 + loudness * 0.08);
       haloMaterial.opacity = 0.035 + loudness * 0.08 + metrics.treble * 0.035;
@@ -535,6 +590,10 @@ export default function AudioSpaceLab() {
       planes.forEach((plane) => {
         plane.geometry.dispose();
         plane.material.dispose();
+      });
+      surfaces.forEach((surface) => {
+        surface.geometry.dispose();
+        surface.material.dispose();
       });
       haloGeometry.dispose();
       haloMaterial.dispose();
@@ -795,7 +854,7 @@ export default function AudioSpaceLab() {
             ))}
           </div>
 
-          <div className="absolute inset-x-0 bottom-[8vh] top-[2vh] z-10 overflow-hidden md:bottom-[6vh] md:top-[-2vh]">
+          <div className="absolute inset-x-0 bottom-[5vh] top-[0vh] z-10 overflow-hidden md:bottom-[4vh] md:top-[-5vh]">
             <div ref={mountRef} className="absolute inset-0" />
             <div className="pointer-events-none absolute left-[54%] top-[21%] -translate-x-1/2 text-[0.48rem] tracking-[0.34em] text-white/12 md:hidden">
               {isPlaying ? "SIGNAL ACTIVE" : "IDLE DRIFT"}
